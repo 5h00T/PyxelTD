@@ -18,16 +18,16 @@ class InGameScene(BaseScene):
     def update(self, game):
         """
         インゲーム画面の更新処理。
-        ESCでポーズ/メニューに戻る、今後ゲームロジックを追加。
+        Pでポーズ、Qでメニューに戻る、今後ゲームロジックを追加。
         """
-        if pyxel.btnp(pyxel.KEY_ESCAPE):
+        if pyxel.btnp(pyxel.KEY_P):
             if self.game_state == "playing":
                 self.game_state = "paused"
-            else:
-                from .menu_scene import MenuScene
-                game.change_scene(MenuScene())
-        elif pyxel.btnp(pyxel.KEY_SPACE) and self.game_state == "paused":
-            self.game_state = "playing"
+            elif self.game_state == "paused":
+                self.game_state = "playing"
+        elif pyxel.btnp(pyxel.KEY_Q):
+            from .menu_scene import MenuScene
+            game.change_scene(MenuScene())
         
         # TODO: ゲームロジックの実装
         # - 敵の管理
@@ -53,11 +53,11 @@ class InGameScene(BaseScene):
             # - UI
             pyxel.text(60, 50, "Game Playing", 7)
             pyxel.text(40, 60, "(Game logic here)", 6)
-            pyxel.text(40, 110, "ESC: Pause", 5)
+            pyxel.text(40, 110, "P: Pause, Q: Menu", 5)
         elif self.game_state == "paused":
             # ポーズ画面
             pyxel.rect(40, 40, 80, 40, 0)
             pyxel.rectb(40, 40, 80, 40, 7)
             pyxel.text(65, 50, "PAUSED", 7)
-            pyxel.text(45, 60, "SPACE: Resume", 6)
-            pyxel.text(50, 70, "ESC: Menu", 6)
+            pyxel.text(50, 60, "P: Resume", 6)
+            pyxel.text(55, 70, "Q: Menu", 6)
