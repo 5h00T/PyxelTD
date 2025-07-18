@@ -15,17 +15,18 @@ class InGameScene(BaseScene):
         self.stage_number = stage_number
         self.game_state = "playing"  # playing, paused, game_over
     
-    def update(self, game):
+    def update(self, game, input_manager):
         """
         インゲーム画面の更新処理。
         Pでポーズ、Qでメニューに戻る、今後ゲームロジックを追加。
+        InputManager経由で入力判定。
         """
-        if pyxel.btnp(pyxel.KEY_P):
+        if input_manager.is_triggered(pyxel.KEY_P):
             if self.game_state == "playing":
                 self.game_state = "paused"
             elif self.game_state == "paused":
                 self.game_state = "playing"
-        elif pyxel.btnp(pyxel.KEY_Q):
+        elif input_manager.is_triggered(pyxel.KEY_Q):
             from .menu_scene import MenuScene
             game.change_scene(MenuScene())
         
@@ -36,7 +37,7 @@ class InGameScene(BaseScene):
         # - スコア計算
         # など
     
-    def draw(self, game):
+    def draw(self, game, input_manager):
         """
         インゲーム画面の描画処理。
         """

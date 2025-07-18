@@ -13,16 +13,16 @@ class TitleScene(BaseScene):
     def __init__(self):
         super().__init__()
     
-    def update(self, game):
+    def update(self, game, input_manager):
         """
         タイトル画面の更新処理。
         スペースキーでメニューシーンに遷移。
         """
-        if pyxel.btnp(pyxel.KEY_SPACE):
+        if input_manager.is_triggered(pyxel.KEY_SPACE):
             from .menu_scene import MenuScene
             game.change_scene(MenuScene())
     
-    def draw(self, game):
+    def draw(self, game, input_manager):
         """
         タイトル画面の描画処理。
         """

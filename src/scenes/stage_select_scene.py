@@ -15,23 +15,24 @@ class StageSelectScene(BaseScene):
         self.selected_stage = 0
         self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4"]
     
-    def update(self, game):
+    def update(self, game, input_manager):
         """
         ステージ選択画面の更新処理。
         上下キーで選択、スペースキーで決定、ESCでメニューに戻る。
+        InputManager経由で入力判定。
         """
-        if pyxel.btnp(pyxel.KEY_UP):
+        if input_manager.is_triggered(pyxel.KEY_UP):
             self.selected_stage = (self.selected_stage - 1) % len(self.stages)
-        elif pyxel.btnp(pyxel.KEY_DOWN):
+        elif input_manager.is_triggered(pyxel.KEY_DOWN):
             self.selected_stage = (self.selected_stage + 1) % len(self.stages)
-        elif pyxel.btnp(pyxel.KEY_SPACE):
+        elif input_manager.is_triggered(pyxel.KEY_SPACE):
             from .in_game_scene import InGameScene
             game.change_scene(InGameScene(self.selected_stage + 1))
-        elif pyxel.btnp(pyxel.KEY_ESCAPE):
+        elif input_manager.is_triggered(pyxel.KEY_ESCAPE):
             from .menu_scene import MenuScene
             game.change_scene(MenuScene())
     
-    def draw(self, game):
+    def draw(self, game, input_manager):
         """
         ステージ選択画面の描画処理。
         """
