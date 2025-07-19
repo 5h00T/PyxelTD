@@ -23,14 +23,18 @@ class InputManager:
             keys (List[int]): 監視するキーコード一覧。
         """
         self.keys = keys
-        self.prev_states: Dict[int, bool] = {key: False for key in keys}
+        self.prev_states: Dict[int, bool] = {key: False for key in keys}  # 前フレーム
+        self.current_states: Dict[int, bool] = {key: False for key in keys}  # 今フレーム
 
     def update(self) -> None:
         """
         毎フレーム呼び出し、キー状態を更新。
+        prev_states: 前フレームの状態
+        curr_states: 今フレームの状態
         """
         for key in self.keys:
-            self.prev_states[key] = pyxel.btn(key)
+            self.prev_states[key] = self.current_states.get(key, False)
+            self.current_states[key] = pyxel.btn(key)
 
     def is_pressed(self, key: int) -> bool:
         """
@@ -63,8 +67,9 @@ class InputManager:
         Returns:
             bool: 今フレームで離された場合True。
         """
-        return self.prev_states.get(key, False) and not pyxel.btn(key)
-
+        # 前フレームで押されていて、今フレームで押されていない
+        return self.prev_states.get(key, False) and not self.current_states.get(key, False)
+        
     def get_pressed_keys(self) -> List[int]:
         """
         現在押されているキー一覧を返す。
