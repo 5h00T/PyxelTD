@@ -3,17 +3,20 @@ TitleScene - タイトル画面のシーン
 """
 import pyxel
 from .base_scene import BaseScene
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game import Game
+    from input_manager import InputManager
 
 class TitleScene(BaseScene):
     """
     ゲームのタイトル画面を管理するシーン。
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-    
-    def update(self, game, input_manager):
+
+    def update(self, game: "Game", input_manager: "InputManager") -> None:
         """
         タイトル画面の更新処理。
         スペースキーでメニューシーンに遷移。
@@ -22,7 +25,7 @@ class TitleScene(BaseScene):
             from .menu_scene import MenuScene
             game.change_scene(MenuScene())
     
-    def draw(self, game, input_manager):
+    def draw(self, game: "Game", input_manager: "InputManager") -> None:
         """
         タイトル画面の描画処理。
         """

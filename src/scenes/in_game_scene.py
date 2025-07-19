@@ -3,6 +3,10 @@ InGameScene - インゲーム画面のシーン
 """
 import pyxel
 from .base_scene import BaseScene
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game import Game
+    from input_manager import InputManager
 
 
 class InGameScene(BaseScene):
@@ -10,12 +14,12 @@ class InGameScene(BaseScene):
     ゲームプレイ中の画面を管理するシーン。
     """
     
-    def __init__(self, stage_number=1):
+    def __init__(self, stage_number: int = 1) -> None:
         super().__init__()
         self.stage_number = stage_number
         self.game_state = "playing"  # playing, paused, game_over
-    
-    def update(self, game, input_manager):
+
+    def update(self, game: "Game", input_manager: "InputManager") -> None:
         """
         インゲーム画面の更新処理。
         Pでポーズ、Qでメニューに戻る、今後ゲームロジックを追加。
@@ -37,7 +41,7 @@ class InGameScene(BaseScene):
         # - スコア計算
         # など
     
-    def draw(self, game, input_manager):
+    def draw(self, game: "Game", input_manager: "InputManager") -> None:
         """
         インゲーム画面の描画処理。
         """
