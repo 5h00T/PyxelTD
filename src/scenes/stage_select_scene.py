@@ -1,12 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game import Game
+    from input_manager import InputManager
 """
 StageSelectScene - ステージ選択画面のシーン
 """
 import pyxel
 from .base_scene import BaseScene
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from game import Game
-    from input_manager import InputManager
 
 class StageSelectScene(BaseScene):
     """
@@ -18,7 +19,7 @@ class StageSelectScene(BaseScene):
         self.selected_stage = 0
         self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4"]
     
-    def update(self, game: "Game", input_manager: "InputManager") -> None:
+    def update(self, game: Game, input_manager: InputManager) -> None:
         """
         ステージ選択画面の更新処理。
         上下キーで選択、スペースキーで決定、ESCでメニューに戻る。
@@ -35,7 +36,7 @@ class StageSelectScene(BaseScene):
             from .menu_scene import MenuScene
             game.change_scene(MenuScene())
     
-    def draw(self, game: "Game", input_manager: "InputManager") -> None:
+    def draw(self, game: Game, input_manager: InputManager) -> None:
         """
         ステージ選択画面の描画処理。
         """

@@ -4,7 +4,7 @@
 
 import pyxel
 from scenes.base_scene import BaseScene
-from scenes import TitleScene
+from scenes.title_scene import TitleScene
 from input_manager import InputManager
 
 
