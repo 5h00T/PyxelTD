@@ -3,19 +3,22 @@ StageSelectScene - ステージ選択画面のシーン
 """
 import pyxel
 from .base_scene import BaseScene
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game import Game
+    from input_manager import InputManager
 
 class StageSelectScene(BaseScene):
     """
     ステージ選択画面を管理するシーン。
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.selected_stage = 0
         self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4"]
     
-    def update(self, game, input_manager):
+    def update(self, game: "Game", input_manager: "InputManager") -> None:
         """
         ステージ選択画面の更新処理。
         上下キーで選択、スペースキーで決定、ESCでメニューに戻る。
@@ -32,7 +35,7 @@ class StageSelectScene(BaseScene):
             from .menu_scene import MenuScene
             game.change_scene(MenuScene())
     
-    def draw(self, game, input_manager):
+    def draw(self, game: "Game", input_manager: "InputManager") -> None:
         """
         ステージ選択画面の描画処理。
         """

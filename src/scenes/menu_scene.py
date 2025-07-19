@@ -3,19 +3,22 @@ MenuScene - メニュー画面のシーン
 """
 import pyxel
 from .base_scene import BaseScene
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game import Game
+    from input_manager import InputManager
 
 class MenuScene(BaseScene):
     """
     ゲームのメニュー画面を管理するシーン。
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.selected_option = 0
         self.options = ["Start Game", "Settings", "Exit"]
-    
-    def update(self, game, input_manager):
+
+    def update(self, game: "Game", input_manager: "InputManager") -> None:
         """
         メニュー画面の更新処理。
         上下キーで選択、スペースキーで決定。
@@ -35,7 +38,7 @@ class MenuScene(BaseScene):
             elif self.selected_option == 2:  # Exit
                 pyxel.quit()
 
-    def draw(self, game, input_manager):
+    def draw(self, game: "Game", input_manager: "InputManager") -> None:
         """
         メニュー画面の描画処理。
         """
