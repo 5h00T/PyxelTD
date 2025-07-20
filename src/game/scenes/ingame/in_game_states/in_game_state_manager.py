@@ -13,6 +13,7 @@ from .playing_state import PlayingState
 from .clear_state import ClearState
 from .gameover_state import GameOverState
 from .in_game_state import GameStateProtocol
+from ..enemy_manager import EnemyManager
 
 
 class InGameStateManager:
@@ -21,9 +22,9 @@ class InGameStateManager:
     状態インスタンスの生成・保持・遷移を担当。
     """
 
-    def __init__(self) -> None:
+    def __init__(self, enemy_manager: "EnemyManager") -> None:
         self.prestart_state = PreStartState()
-        self.playing_state = PlayingState()
+        self.playing_state = PlayingState(enemy_manager)
         self.clear_state = ClearState()
         self.gameover_state = GameOverState()
         self.current_state: GameStateProtocol = self.prestart_state

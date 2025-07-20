@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from ...input_manager import InputManager
 from .in_game_states.in_game_state_manager import InGameStateManager
 from .map import Map
+from .enemy_manager import EnemyManager
 
 
 class InGameManager:
@@ -21,7 +22,10 @@ class InGameManager:
         width = max(16, 14)
         height = max(12, 14)
         self.map = Map(width=width, height=height)
-        self.state_manager = InGameStateManager()
+        self.enemy_manager = EnemyManager()
+        # エネミーのサンプル生成（マップ経路に沿う）
+        self.enemy_manager.spawn_sample_enemies(self.map)
+        self.state_manager = InGameStateManager(self.enemy_manager)
         from .cursor import Cursor
         from .camera import Camera
 
@@ -61,9 +65,20 @@ class InGameManager:
         インゲームの描画処理。
         カメラ・カーソルを考慮して描画。
         """
+
+        # TODO: ゲーム画面の背景表示
+        def draw_background() -> None:
+            import pyxel
+
+            pyxel.cls(0)
+
+        draw_background()
+
         camera_x, camera_y = self.camera.get_pos()
         # マップ描画（カメラ範囲のみ）
         self.map.draw(camera_x, camera_y, self.camera.view_width, self.camera.view_height)
-        # カーソル描画
+        # TODO: ユニットなどの描画
+        self.enemy_manager.draw(camera_x, camera_y)  # エネミーの描画
+        # カーソルは上に描画
         self.cursor.draw(camera_x, camera_y)
-        self.state_manager.draw(self)
+        # self.state_manager.draw(self)
