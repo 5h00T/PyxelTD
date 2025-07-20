@@ -4,8 +4,10 @@ InputManager - 入力抽象化クラス
 ゲーム内のキー入力を一元管理し、シーンやゲーム本体から利用できるAPIを提供します。
 Pyxelのbtn/btnpをラップし、今後の拡張にも備えます。
 """
+
 import pyxel  # Pyxel: レトロゲーム開発用Pythonライブラリ。キー入力取得に利用。
 from typing import Dict, List
+
 
 class InputManager:
     """
@@ -20,6 +22,7 @@ class InputManager:
         Pyxelのbtn/btnpをラップし、今後の拡張やテスト容易性を高める設計。
         無効なキーコードは常にFalseを返します。
     """
+
     def __init__(self, keys: List[int]) -> None:
         """
         InputManagerの初期化。
@@ -85,9 +88,10 @@ class InputManager:
         """
         # prev_states/current_statesの差分でトリガー判定
         return (
-            not self.prev_states.get(key, False)
-            and self.current_states.get(key, False)
-        ) if key in self.keys else False
+            (not self.prev_states.get(key, False) and self.current_states.get(key, False))
+            if key in self.keys
+            else False
+        )
 
     def is_released(self, key: int) -> bool:
         """
@@ -107,10 +111,11 @@ class InputManager:
         # 監視対象外キーは常にFalse（エッジケース対応）
         # prev_states/current_statesの差分で離し判定
         return (
-            self.prev_states.get(key, False)
-            and not self.current_states.get(key, False)
-        ) if key in self.keys else False
-        
+            (self.prev_states.get(key, False) and not self.current_states.get(key, False))
+            if key in self.keys
+            else False
+        )
+
     def get_pressed_keys(self) -> List[int]:
         """
         現在押されている監視対象キー一覧を返します。
@@ -123,4 +128,3 @@ class InputManager:
         """
         # current_statesを参照し、押されている監視対象キーのみ返す
         return [key for key in self.keys if self.current_states.get(key, False)]
-

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from game import Game
     from input_manager import InputManager
@@ -14,7 +15,7 @@ class InGameScene(BaseScene):
     """
     ゲームプレイ中の画面を管理するシーン。
     """
-    
+
     def __init__(self, stage_number: int = 1) -> None:
         super().__init__()
         self.stage_number = stage_number
@@ -33,24 +34,25 @@ class InGameScene(BaseScene):
                 self.game_state = "playing"
         elif input_manager.is_triggered(pyxel.KEY_Q):
             from .menu_scene import MenuScene
+
             game.change_scene(MenuScene())
-        
+
         # TODO: ゲームロジックの実装
         # - 敵の管理
         # - タワーの配置
         # - 弾の軌道
         # - スコア計算
         # など
-    
+
     def draw(self, game: Game, input_manager: InputManager) -> None:
         """
         インゲーム画面の描画処理。
         """
         pyxel.cls(3)  # 緑背景でゲーム画面を表現
-        
+
         # ステージ情報表示
         pyxel.text(5, 5, f"Stage {self.stage_number}", 7)
-        
+
         if self.game_state == "playing":
             # TODO: ゲーム要素の描画
             # - マップ

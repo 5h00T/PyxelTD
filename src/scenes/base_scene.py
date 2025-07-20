@@ -1,6 +1,7 @@
 """
 BaseScene - ゲームシーンの基底クラス
 """
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -10,11 +11,11 @@ class BaseScene(ABC):
     全てのゲームシーンの基底クラス。
     各シーンは update() と draw() メソッドを実装する必要がある。
     """
-    
+
     def __init__(self) -> None:
         """シーンの初期化"""
         pass
-    
+
     @abstractmethod
     def update(self, game: Any, input_manager: Any) -> None:
         """
@@ -28,7 +29,7 @@ class BaseScene(ABC):
             None
         """
         pass
-    
+
     @abstractmethod
     def draw(self, game: Any, input_manager: Any) -> None:
         """

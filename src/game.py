@@ -12,12 +12,22 @@ class Game:
     """
     ゲーム全体のループとシーン管理を担当するクラス。
     """
+
     def __init__(self) -> None:
         pyxel.init(160, 120)
-        self.input_manager = InputManager([
-            pyxel.KEY_UP, pyxel.KEY_DOWN, pyxel.KEY_LEFT, pyxel.KEY_RIGHT,
-            pyxel.KEY_SPACE, pyxel.KEY_RETURN, pyxel.KEY_ESCAPE, pyxel.KEY_P, pyxel.KEY_Q
-        ])
+        self.input_manager = InputManager(
+            [
+                pyxel.KEY_UP,
+                pyxel.KEY_DOWN,
+                pyxel.KEY_LEFT,
+                pyxel.KEY_RIGHT,
+                pyxel.KEY_SPACE,
+                pyxel.KEY_RETURN,
+                pyxel.KEY_ESCAPE,
+                pyxel.KEY_P,
+                pyxel.KEY_Q,
+            ]
+        )
         self.current_scene: BaseScene = TitleScene()
         pyxel.run(self.update, self.draw)
 
@@ -35,11 +45,11 @@ class Game:
         """
         if self.current_scene:
             self.current_scene.draw(self, self.input_manager)
-    
+
     def change_scene(self, new_scene: BaseScene) -> None:
         """
         シーンを変更する。
-        
+
         Args:
             new_scene: 新しいシーンのインスタンス
         """
