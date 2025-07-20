@@ -26,7 +26,7 @@ class StageSelectScene(BaseScene):
     def update(self, game: Game, input_manager: InputManager) -> None:
         """
         ステージ選択画面の更新処理。
-        上下キーで選択、スペースキーで決定、ESCでメニューに戻る。
+        上下キーで選択、スペースキーで決定、Qでメニューに戻る。
         InputManager経由で入力判定。
         """
         if input_manager.is_triggered(pyxel.KEY_UP):
@@ -35,7 +35,7 @@ class StageSelectScene(BaseScene):
             self.selected_stage = (self.selected_stage + 1) % len(self.stages)
         elif input_manager.is_triggered(pyxel.KEY_SPACE):
             game.change_scene(new_scene=SceneType.IN_GAME)
-        elif input_manager.is_triggered(pyxel.KEY_ESCAPE):
+        elif input_manager.is_triggered(pyxel.KEY_Q):
             game.change_scene(new_scene=SceneType.MENU)
 
     def draw(self, game: Game) -> None:
@@ -51,4 +51,4 @@ class StageSelectScene(BaseScene):
             pyxel.text(60, y_pos, stage, color)
 
         pyxel.text(20, 100, "UP/DOWN: Select, SPACE: Start", 5)
-        pyxel.text(25, 110, "ESC: Back to Menu", 5)
+        pyxel.text(25, 110, "Q: Back to Menu", 5)
