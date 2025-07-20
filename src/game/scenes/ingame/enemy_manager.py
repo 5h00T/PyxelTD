@@ -57,7 +57,7 @@ class EnemyManager:
         Args:
             map_obj (Map): マップオブジェクト
         """
-        from .enemy import Enemy
+        from .enemy import BasicEnemy
 
         paths = map_obj.get_all_paths_from_entrances_to_goal()
         if not paths:
@@ -69,5 +69,5 @@ class EnemyManager:
             sx, sy = path[0]
             # 各入口から3体ずつ生成
             for i in range(3):
-                enemy = Enemy(x=sx, y=sy, speed=0.2 + 0.1 * i, hp=10 + 5 * i, path=path)
+                enemy = BasicEnemy(x=sx, y=sy, speed=0.2 + 0.1 * i, hp=10 + 5 * i, path=path)
                 self.spawn_enemy(enemy)
