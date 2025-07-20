@@ -5,6 +5,8 @@ Map - シンプルなマップタイル管理クラス
 
 from typing import List
 
+from typing import Optional
+
 # タイル種別定数
 TILE_PATH = 0  # 敵の道（灰色）
 TILE_PLACEABLE = 1  # ユニット配置可能（白）
@@ -21,12 +23,15 @@ class Map:
         """
         マップ初期化。仮ステージデータ生成。
         Args:
-            width (int): マップ横タイル数
-            height (int): マップ縦タイル数
+            width (int): マップ横タイル数（仮）
+            height (int): マップ縦タイル数（仮）
+        Note:
+            実際のマップサイズは生成された2次元配列のサイズに合わせて自動設定されます。
         """
-        self.width = width
-        self.height = height
         self.data: List[List[int]] = self.generate_sample_stage(width, height)
+        # 実際のマップサイズを配列から取得
+        self.height = len(self.data)
+        self.width = len(self.data[0]) if self.data else 0
 
     @staticmethod
     def generate_sample_stage(width: int, height: int) -> List[List[int]]:
@@ -62,7 +67,9 @@ class Map:
 
         return data
 
-    def draw(self, camera_x: int = 0, camera_y: int = 0, view_width: int = 14, view_height: int = 14) -> None:
+    def draw(
+        self, camera_x: int = 0, camera_y: int = 0, view_width: Optional[int] = None, view_height: Optional[int] = None
+    ) -> None:
         """
         カメラ範囲のみマップを描画。
         Args:
@@ -72,17 +79,20 @@ class Map:
             view_height (int): 画面表示タイル数Y
         """
         import pyxel
+        from .constants import TILE_SIZE, VIEW_TILE_WIDTH, VIEW_TILE_HEIGHT
 
+        view_width = view_width if view_width is not None else VIEW_TILE_WIDTH
+        view_height = view_height if view_height is not None else VIEW_TILE_HEIGHT
         for y in range(camera_y, min(camera_y + view_height, self.height)):
             for x in range(camera_x, min(camera_x + view_width, self.width)):
                 tile = self.data[y][x]
-                px = (x - camera_x) * 8
-                py = (y - camera_y) * 8
+                px = (x - camera_x) * TILE_SIZE
+                py = (y - camera_y) * TILE_SIZE
                 if tile == TILE_PATH:
-                    pyxel.rect(px, py, 8, 8, 5)  # 灰色
+                    pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 5)  # 灰色
                 elif tile == TILE_PLACEABLE:
-                    pyxel.rect(px, py, 8, 8, 7)  # 白
+                    pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 7)  # 白
                 elif tile == TILE_BLOCKED:
-                    pyxel.rect(px, py, 8, 8, 7)  # 白地
-                    pyxel.line(px, py, px + 7, py + 7, 8)  # バツ印
-                    pyxel.line(px + 7, py, px, py + 7, 8)
+                    pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 7)  # 白地
+                    pyxel.line(px, py, px + TILE_SIZE - 1, py + TILE_SIZE - 1, 8)  # バツ印
+                    pyxel.line(px + TILE_SIZE - 1, py, px, py + TILE_SIZE - 1, 8)

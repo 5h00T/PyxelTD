@@ -2,17 +2,23 @@
 Camera - マップ表示範囲（カメラ）管理クラス
 """
 
+from typing import Optional
+
 
 class Camera:
     """
     マップの表示範囲（カメラ位置）を管理するクラス。
     """
 
-    def __init__(self, map_width: int, map_height: int, view_width: int = 14, view_height: int = 14) -> None:
+    def __init__(
+        self, map_width: int, map_height: int, view_width: Optional[int] = None, view_height: Optional[int] = None
+    ) -> None:
+        from .constants import VIEW_TILE_WIDTH, VIEW_TILE_HEIGHT
+
         self.map_width = map_width
         self.map_height = map_height
-        self.view_width = view_width
-        self.view_height = view_height
+        self.view_width = view_width if view_width is not None else VIEW_TILE_WIDTH
+        self.view_height = view_height if view_height is not None else VIEW_TILE_HEIGHT
         self.x = 0  # 左上タイル座標
         self.y = 0
 
@@ -30,8 +36,10 @@ class Camera:
         # Y方向
         if cursor_y < self.y + margin:
             self.y = max(0, cursor_y - margin)
+            # デバッグ出力削除
         elif cursor_y >= self.y + self.view_height - margin:
             self.y = min(self.map_height - self.view_height, cursor_y - self.view_height + margin + 1)
+            # デバッグ出力削除
 
     def get_pos(self) -> tuple[int, int]:
         """

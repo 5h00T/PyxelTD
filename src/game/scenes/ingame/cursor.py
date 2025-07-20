@@ -18,11 +18,15 @@ class Cursor:
 
     def move(self, dx: int, dy: int) -> None:
         """
-        カーソルを移動する。画面外にはみ出さないよう制限。
+        カーソルを移動する。マップ外にはみ出さないよう制限。
+        カメラがスクロールすることで、画面下端でもカーソルが移動可能。
         """
-        self.x = max(0, min(self.x + dx, self.map_width - 1))
-        self.y = max(0, min(self.y + dy, self.map_height - 1))
-        print(f"Cursor moved to ({self.x}, {self.y})")
+        new_x = self.x + dx
+        new_y = self.y + dy
+        # マップ全体の範囲で制限
+        self.x = max(0, min(new_x, self.map_width - 1))
+        self.y = max(0, min(new_y, self.map_height - 1))
+        # デバッグ出力削除
 
     def get_pos(self) -> Tuple[int, int]:
         """
@@ -36,8 +40,9 @@ class Cursor:
         camera_x, camera_y: カメラの左上タイル座標
         """
         import pyxel
+        from .constants import TILE_SIZE, VIEW_TILE_WIDTH, VIEW_TILE_HEIGHT
 
-        screen_x = (self.x - camera_x) * 8
-        screen_y = (self.y - camera_y) * 8
-        if 0 <= screen_x < 8 * 14 and 0 <= screen_y < 8 * 14:
-            pyxel.rectb(screen_x, screen_y, 8, 8, 10)  # 黄色枠
+        screen_x = (self.x - camera_x) * TILE_SIZE
+        screen_y = (self.y - camera_y) * TILE_SIZE
+        if 0 <= screen_x < TILE_SIZE * VIEW_TILE_WIDTH and 0 <= screen_y < TILE_SIZE * VIEW_TILE_HEIGHT:
+            pyxel.rectb(screen_x, screen_y, TILE_SIZE, TILE_SIZE, 10)  # 黄色枠
