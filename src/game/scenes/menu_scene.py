@@ -8,7 +8,9 @@ if TYPE_CHECKING:
 MenuScene - メニュー画面のシーン
 """
 import pyxel
+
 from .base_scene import BaseScene
+from .scene_type import SceneType
 
 
 class MenuScene(BaseScene):
@@ -33,8 +35,6 @@ class MenuScene(BaseScene):
             self.selected_option = (self.selected_option + 1) % len(self.options)
         elif input_manager.is_triggered(pyxel.KEY_SPACE):
             if self.selected_option == 0:  # Start Game
-                from ..game import SceneType  # 遅延インポートで循環参照回避
-
                 game.change_scene(new_scene=SceneType.STAGE_SELECT)
             elif self.selected_option == 1:  # Settings
                 # TODO: Implement settings scene

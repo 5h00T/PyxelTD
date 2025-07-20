@@ -8,7 +8,9 @@ if TYPE_CHECKING:
 StageSelectScene - ステージ選択画面のシーン
 """
 import pyxel
+
 from .base_scene import BaseScene
+from .scene_type import SceneType
 
 
 class StageSelectScene(BaseScene):
@@ -32,12 +34,8 @@ class StageSelectScene(BaseScene):
         elif input_manager.is_triggered(pyxel.KEY_DOWN):
             self.selected_stage = (self.selected_stage + 1) % len(self.stages)
         elif input_manager.is_triggered(pyxel.KEY_SPACE):
-            from ..game import SceneType  # 遅延インポートで循環参照回避
-
             game.change_scene(new_scene=SceneType.IN_GAME)
         elif input_manager.is_triggered(pyxel.KEY_ESCAPE):
-            from ..game import SceneType  # 遅延インポートで循環参照回避
-
             game.change_scene(new_scene=SceneType.MENU)
 
     def draw(self, game: Game) -> None:

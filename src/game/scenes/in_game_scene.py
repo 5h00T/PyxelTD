@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 InGameScene - インゲーム画面のシーン
 """
 import pyxel
+
 from .base_scene import BaseScene
 from .ingame.in_game_states.in_game_state import GameStateProtocol
 from .ingame.ingame_manager import InGameManager

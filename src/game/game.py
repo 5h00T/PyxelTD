@@ -9,14 +9,8 @@ from .scenes.menu_scene import MenuScene
 from .scenes.in_game_scene import InGameScene
 from .scenes.stage_select_scene import StageSelectScene
 from .input_manager import InputManager
-from enum import Enum
 
-
-class SceneType(Enum):
-    TITLE = 1
-    MENU = 2
-    STAGE_SELECT = 3
-    IN_GAME = 4
+from .scenes.scene_type import SceneType
 
 
 class Game:

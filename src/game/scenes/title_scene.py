@@ -8,7 +8,9 @@ if TYPE_CHECKING:
 TitleScene - タイトル画面のシーン
 """
 import pyxel
+
 from .base_scene import BaseScene
+from .scene_type import SceneType
 
 
 class TitleScene(BaseScene):
@@ -25,8 +27,6 @@ class TitleScene(BaseScene):
         スペースキーでメニューシーンに遷移。
         """
         if input_manager.is_triggered(pyxel.KEY_SPACE):
-            from ..game import SceneType  # 遅延インポートで循環参照回避
-
             game.change_scene(new_scene=SceneType.MENU)
 
     def draw(self, game: Game) -> None:
