@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from game import Game
-    from input_manager import InputManager
+    from ..game import Game
+    from ..input_manager import InputManager
 """
 TitleScene - タイトル画面のシーン
 """
@@ -25,9 +25,9 @@ class TitleScene(BaseScene):
         スペースキーでメニューシーンに遷移。
         """
         if input_manager.is_triggered(pyxel.KEY_SPACE):
-            from .menu_scene import MenuScene
+            from ..game import SceneType  # 遅延インポートで循環参照回避
 
-            game.change_scene(MenuScene())
+            game.change_scene(new_scene=SceneType.MENU)
 
     def draw(self, game: Game) -> None:
         """

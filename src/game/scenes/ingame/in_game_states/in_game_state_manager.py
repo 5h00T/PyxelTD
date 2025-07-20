@@ -6,9 +6,8 @@ InGameStateManager - インゲームのステート管理クラス。
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from scenes.in_game_scene import InGameScene
-    from game import Game
-    from input_manager import InputManager
+    from ..ingame_manager import InGameManager
+    from ....input_manager import InputManager
 from .prestart_state import PreStartState
 from .playing_state import PlayingState
 from .clear_state import ClearState
@@ -38,14 +37,15 @@ class InGameStateManager:
         print(f"Changing state to {new_state.__class__.__name__}")
         self.current_state = new_state
 
-    def update(self, scene: "InGameScene", game: "Game", input_manager: "InputManager") -> None:
+    def update(self, manager: "InGameManager", input_manager: "InputManager") -> None:
         """
         現在の状態の更新処理。
         """
-        self.current_state.update(self, game, input_manager)
+        self.current_state.update(self, manager, input_manager)
 
-    def draw(self, scene: "InGameScene", game: "Game") -> None:
+    def draw(self, manager: "InGameManager") -> None:
         """
         現在の状態の描画処理。
         """
-        self.current_state.draw(scene, game)
+        # ステートのdrawでmap描画が必要な場合はself.mapを参照可能
+        self.current_state.draw(manager)

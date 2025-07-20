@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from game import Game
-    from input_manager import InputManager
+    from ..game import Game
+    from ..input_manager import InputManager
 """
 MenuScene - メニュー画面のシーン
 """
@@ -33,9 +33,9 @@ class MenuScene(BaseScene):
             self.selected_option = (self.selected_option + 1) % len(self.options)
         elif input_manager.is_triggered(pyxel.KEY_SPACE):
             if self.selected_option == 0:  # Start Game
-                from .stage_select_scene import StageSelectScene
+                from ..game import SceneType  # 遅延インポートで循環参照回避
 
-                game.change_scene(StageSelectScene())
+                game.change_scene(new_scene=SceneType.STAGE_SELECT)
             elif self.selected_option == 1:  # Settings
                 # TODO: Implement settings scene
                 pass

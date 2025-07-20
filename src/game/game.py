@@ -3,9 +3,20 @@
 """
 
 import pyxel
-from scenes.base_scene import BaseScene
-from scenes.title_scene import TitleScene
-from input_manager import InputManager
+from .scenes.base_scene import BaseScene
+from .scenes.title_scene import TitleScene
+from .scenes.menu_scene import MenuScene
+from .scenes.in_game_scene import InGameScene
+from .scenes.stage_select_scene import StageSelectScene
+from .input_manager import InputManager
+from enum import Enum
+
+
+class SceneType(Enum):
+    TITLE = 1
+    MENU = 2
+    STAGE_SELECT = 3
+    IN_GAME = 4
 
 
 class Game:
@@ -28,7 +39,13 @@ class Game:
                 pyxel.KEY_Q,
             ]
         )
-        self.current_scene: BaseScene = TitleScene()
+        self.scenes = {
+            SceneType.TITLE: TitleScene,
+            SceneType.MENU: MenuScene,
+            SceneType.STAGE_SELECT: StageSelectScene,
+            SceneType.IN_GAME: InGameScene,
+        }
+        self.current_scene: BaseScene = self.scenes[SceneType.TITLE]()  # 初期シーンはタイトル画面
         pyxel.run(self.update, self.draw)
 
     def update(self) -> None:
@@ -46,11 +63,11 @@ class Game:
         if self.current_scene:
             self.current_scene.draw(self)
 
-    def change_scene(self, new_scene: BaseScene) -> None:
+    def change_scene(self, new_scene: SceneType) -> None:
         """
         シーンを変更する。
 
         Args:
             new_scene: 新しいシーンのインスタンス
         """
-        self.current_scene = new_scene
+        self.current_scene = self.scenes[new_scene]()

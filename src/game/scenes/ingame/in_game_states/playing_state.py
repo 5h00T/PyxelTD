@@ -5,10 +5,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from scenes.in_game_scene import InGameScene
-    from game import Game
-    from input_manager import InputManager
+    from ....input_manager import InputManager
     from .in_game_state_manager import InGameStateManager
+    from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
 
 
@@ -18,10 +17,14 @@ class PlayingState(GameStateProtocol):
     クリア・ゲームオーバー判定で状態遷移。
     """
 
-    def update(self, state_manager: "InGameStateManager", game: "Game", input_manager: "InputManager") -> None:
+    def update(
+        self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
+    ) -> None:
         # TODO: ゲームロジック更新
         ...
 
-    def draw(self, scene: "InGameScene", game: "Game") -> None:
-        # ゲームプレイ画面描画
-        scene.draw_gameplay()
+    def draw(self, manager: "InGameManager") -> None:
+        """
+        マップの描写を行う。
+        """
+        manager.map.draw()

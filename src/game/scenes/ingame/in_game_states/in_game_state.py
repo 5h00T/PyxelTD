@@ -7,10 +7,9 @@ from __future__ import annotations
 from typing import Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from scenes.in_game_scene import InGameScene
-    from game import Game
-    from input_manager import InputManager
+    from ....input_manager import InputManager
     from .in_game_state_manager import InGameStateManager
+    from ..ingame_manager import InGameManager
 
 
 class GameStateProtocol(Protocol):
@@ -19,7 +18,9 @@ class GameStateProtocol(Protocol):
     各状態はupdate/drawを実装すること。
     """
 
-    def update(self, scene: "InGameStateManager", game: "Game", input_manager: "InputManager") -> None:
+    def update(
+        self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
+    ) -> None:
         """
         状態ごとの更新処理。
 
@@ -30,7 +31,7 @@ class GameStateProtocol(Protocol):
         """
         ...
 
-    def draw(self, scene: "InGameScene", game: "Game") -> None:
+    def draw(self, manager: "InGameManager") -> None:
         """
         状態ごとの描画処理。
 
