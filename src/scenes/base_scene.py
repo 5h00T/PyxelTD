@@ -31,7 +31,7 @@ class BaseScene(ABC):
         pass
 
     @abstractmethod
-    def draw(self, game: Any, input_manager: Any) -> None:
+    def draw(self, game: Any) -> None:
         """
         シーンの描画処理。
 

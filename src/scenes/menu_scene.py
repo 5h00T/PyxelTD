@@ -42,7 +42,7 @@ class MenuScene(BaseScene):
             elif self.selected_option == 2:  # Exit
                 pyxel.quit()
 
-    def draw(self, game: Game, input_manager: InputManager) -> None:
+    def draw(self, game: Game) -> None:
         """
         メニュー画面の描画処理。
         """

@@ -44,7 +44,7 @@ class Game:
         現在のシーンの描画処理を呼び出す。
         """
         if self.current_scene:
-            self.current_scene.draw(self, self.input_manager)
+            self.current_scene.draw(self)
 
     def change_scene(self, new_scene: BaseScene) -> None:
         """

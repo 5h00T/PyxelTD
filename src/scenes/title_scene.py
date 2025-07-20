@@ -29,7 +29,7 @@ class TitleScene(BaseScene):
 
             game.change_scene(MenuScene())
 
-    def draw(self, game: Game, input_manager: InputManager) -> None:
+    def draw(self, game: Game) -> None:
         """
         タイトル画面の描画処理。
         """
