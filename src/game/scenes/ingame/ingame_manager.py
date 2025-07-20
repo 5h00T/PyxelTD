@@ -17,8 +17,16 @@ class InGameManager:
     """
 
     def __init__(self, stage_number: int = 1) -> None:
-        self.map = Map(width=16, height=12)
+        # 仮: ステージごとにサイズ可変、最低14x14保証
+        width = max(16, 14)
+        height = max(12, 14)
+        self.map = Map(width=width, height=height)
         self.state_manager = InGameStateManager()
+        from .cursor import Cursor
+        from .camera import Camera
+
+        self.cursor = Cursor(self.map.width, self.map.height)
+        self.camera = Camera(self.map.width, self.map.height)
 
     def change_scene(self, scene_name: str) -> None:
         """
@@ -31,11 +39,31 @@ class InGameManager:
     def update(self, input_manager: "InputManager") -> None:
         """
         インゲームの状態更新処理。
+        カーソル・カメラの移動も管理。
         """
+        # カーソル移動（仮: 矢印キーで移動）
+        import pyxel
+
+        if input_manager.is_triggered(pyxel.KEY_UP):
+            self.cursor.move(0, -1)
+        elif input_manager.is_triggered(pyxel.KEY_DOWN):
+            self.cursor.move(0, 1)
+        elif input_manager.is_triggered(pyxel.KEY_LEFT):
+            self.cursor.move(-1, 0)
+        elif input_manager.is_triggered(pyxel.KEY_RIGHT):
+            self.cursor.move(1, 0)
+        # カメラ移動
+        self.camera.move_to_cursor(*self.cursor.get_pos())
         self.state_manager.update(self, input_manager)
 
     def draw(self, game: "Game") -> None:
         """
         インゲームの描画処理。
+        カメラ・カーソルを考慮して描画。
         """
+        camera_x, camera_y = self.camera.get_pos()
+        # マップ描画（カメラ範囲のみ）
+        self.map.draw(camera_x, camera_y, self.camera.view_width, self.camera.view_height)
+        # カーソル描画
+        self.cursor.draw(camera_x, camera_y)
         self.state_manager.draw(self)

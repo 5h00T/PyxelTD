@@ -30,4 +30,4 @@ class PreStartState(GameStateProtocol):
         """
         マップの描写を行う。
         """
-        manager.map.draw()
+        # manager.map.draw()

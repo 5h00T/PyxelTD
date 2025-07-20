@@ -47,16 +47,6 @@ class InGameScene(BaseScene):
         """
         self.manager.draw(game)
 
-    def draw_gameplay(self) -> None:
-        """
-        ゲームプレイ中の描画処理。
-        マップ・UI等の描画。
-        """
-        pyxel.cls(3)
-        self.manager.map.draw(offset_x=8, offset_y=8)
-        pyxel.text(5, 5, f"Stage {self.stage_number}", 7)
-        pyxel.text(40, 110, "P: Pause, Q: Menu", 5)
-
     def is_cleared(self) -> bool:
         """
         ゲームクリア判定。
