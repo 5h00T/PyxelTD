@@ -22,6 +22,7 @@ class Enemy(ABC):
         self.path = path
         self.path_index = 0
         self.is_alive = True  # Falseなら死亡・ゴール到達
+        self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
 
     @abstractmethod
     def update(self) -> None:
@@ -70,6 +71,9 @@ class BasicEnemy(Enemy):
         if self.hp <= 0:
             self.is_alive = False
             return
+        # HPバータイマー減少
+        if self.hp_bar_timer > 0:
+            self.hp_bar_timer -= 1
         # 経路移動
         if self.path_index < len(self.path):
             target_x, target_y = self.path[self.path_index]
@@ -96,10 +100,24 @@ class BasicEnemy(Enemy):
         screen_y = int((self.y - camera_y) * TILE_SIZE)
         if self.is_alive:
             pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, 8)  # 赤丸
+            # ダメージを受けてから一定時間HPバー表示
+            if self.hp_bar_timer > 0 and self.max_hp > 0:
+                bar_w = TILE_SIZE
+                bar_h = 3
+                bar_x = screen_x
+                bar_y = screen_y + TILE_SIZE  # エネミーの下
+                hp_ratio = max(0, self.hp) / self.max_hp
+                filled_w = int(bar_w * hp_ratio)
+                pyxel.rect(bar_x, bar_y, bar_w, bar_h, 0)  # 背景（黒）
+                pyxel.rect(bar_x, bar_y, filled_w, bar_h, 11)  # HP部分（黄）
 
     def damage(self, amount: int) -> None:
-        """指定ダメージを受ける。HPが0以下なら死亡。"""
+        """
+        指定ダメージを受ける。HPが0以下なら死亡。
+        HPバー表示タイマーをリセット。
+        """
         self.hp -= amount
+        self.hp_bar_timer = 60  # 60フレーム（約1秒）HPバー表示
         if self.hp <= 0:
             self.is_alive = False
 
