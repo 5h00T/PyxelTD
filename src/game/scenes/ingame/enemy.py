@@ -17,10 +17,11 @@ class Enemy(ABC):
         self.x = x
         self.y = y
         self.speed = speed
+        self.max_hp = hp
         self.hp = hp
         self.path = path
         self.path_index = 0
-        self.is_alive = True
+        self.is_alive = True  # Falseなら死亡・ゴール到達
 
     @abstractmethod
     def update(self) -> None:
@@ -97,6 +98,7 @@ class BasicEnemy(Enemy):
             pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, 8)  # 赤丸
 
     def damage(self, amount: int) -> None:
+        """指定ダメージを受ける。HPが0以下なら死亡。"""
         self.hp -= amount
         if self.hp <= 0:
             self.is_alive = False

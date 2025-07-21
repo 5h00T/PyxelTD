@@ -15,6 +15,15 @@ TILE_GOAL = 3  # ゴール地点（緑）
 
 
 class Map:
+
+    def get_tile(self, x: int, y: int) -> int:
+        """
+        Returns the tile type at (x, y). Out of bounds returns TILE_BLOCKED (2).
+        """
+        if 0 <= x < self.width and 0 <= y < self.height:
+            return self.data[y][x]
+        return 2
+
     def get_all_paths_from_entrances_to_goal(self) -> list[list[tuple[int, int]]]:
         """
         マップ端のTILE_PATH=0を入口とし、各入口からゴールまでの経路を抽出。

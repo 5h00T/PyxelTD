@@ -22,6 +22,7 @@ class Game:
         pyxel.init(160, 120)
         self.input_manager = InputManager(
             [
+                # ESCは終了なので除外
                 pyxel.KEY_UP,
                 pyxel.KEY_DOWN,
                 pyxel.KEY_LEFT,
@@ -30,6 +31,7 @@ class Game:
                 pyxel.KEY_RETURN,
                 pyxel.KEY_P,
                 pyxel.KEY_Q,
+                pyxel.KEY_Z,
             ]
         )
         self.scenes = {

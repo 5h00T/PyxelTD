@@ -1,0 +1,79 @@
+"""
+PlayerUnit - プレイヤーが配置するユニットの基底クラスとマスターデータ
+"""
+
+from typing import List
+
+
+class PlayerUnit:
+    """
+    プレイヤーユニットの基底クラス。
+    攻撃力・射程・コスト・レベル・範囲攻撃フラグ等を持つ。
+    """
+
+    def __init__(
+        self,
+        unit_id: int,
+        name: str,
+        icon: int,
+        description: str,
+        cost: int,
+        attack: List[int],
+        range: List[int],
+        is_aoe: bool = False,
+        max_level: int = 5,
+    ) -> None:
+        self.unit_id = unit_id
+        self.name = name
+        self.icon = icon
+        self.description = description
+        self.cost = cost
+        self.attack = attack  # レベルごとの攻撃力 [lv1, lv2, ...]
+        self.range = range  # レベルごとの射程 [lv1, lv2, ...]
+        self.is_aoe = is_aoe
+        self.max_level = max_level
+
+    def get_attack(self, level: int) -> int:
+        """現在レベルの攻撃力を返す。"""
+        idx = min(level - 1, len(self.attack) - 1)
+        return self.attack[idx]
+
+    def get_range(self, level: int) -> int:
+        """現在レベルの射程を返す。"""
+        idx = min(level - 1, len(self.range) - 1)
+        return self.range[idx]
+
+
+# --- ユニットマスターデータ ---
+PLAYER_UNIT_MASTER: List[PlayerUnit] = [
+    PlayerUnit(
+        unit_id=1,
+        name="Soldier",
+        icon=0,
+        description="Melee single-target unit",
+        cost=0,
+        attack=[10, 13, 16, 20, 25],
+        range=[1, 1, 1, 1, 1],
+        is_aoe=False,
+    ),
+    PlayerUnit(
+        unit_id=2,
+        name="Archer",
+        icon=1,
+        description="Ranged single-target unit",
+        cost=0,
+        attack=[7, 10, 13, 17, 22],
+        range=[3, 3, 4, 4, 5],
+        is_aoe=False,
+    ),
+    PlayerUnit(
+        unit_id=3,
+        name="Mage",
+        icon=2,
+        description="Area attack unit",
+        cost=0,
+        attack=[5, 7, 10, 14, 18],
+        range=[2, 2, 3, 3, 4],
+        is_aoe=True,
+    ),
+]
