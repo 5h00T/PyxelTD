@@ -27,14 +27,18 @@ class EnemyManager:
         """
         self.enemies.append(enemy)
 
-    def update(self) -> None:
+    def update(self) -> List[Enemy]:
         """
         全ての敵ユニットを更新。死亡した敵はリストから除去。
         """
+        goal_enemies = []
         for enemy in self.enemies:
-            enemy.update()
+            is_goal_reached = enemy.update()
+            if is_goal_reached:
+                goal_enemies.append(enemy)
         # 死亡・ゴール到達した敵を除去
         self.enemies = [e for e in self.enemies if e.is_alive and not e.is_goal()]
+        return goal_enemies
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         """

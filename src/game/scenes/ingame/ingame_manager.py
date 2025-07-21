@@ -94,6 +94,10 @@ class InGameManager:
         self.selected_cell: Optional[tuple[int, int]] = None
         self.unit_ui_cursor: int = 0
 
+        # --- Base HP ---
+        self.base_hp: int = 10  # 防衛拠点のHP
+        self.max_base_hp: int = 10
+
     def change_scene(self, scene_name: str) -> None:
         """
         シーン遷移コールバックを呼び出す。
@@ -197,6 +201,9 @@ class InGameManager:
             # 選択中ユニットの説明
             sel_unit = self.unit_list[self.unit_ui_cursor]
             pyxel.text(ui_x + 4, ui_y + ui_h - 12, sel_unit.description, 13)
+
+        # --- Base HP表示 ---
+        pyxel.text(8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7)
 
         # カーソルは上に描画
         self.cursor.draw(camera_x, camera_y)

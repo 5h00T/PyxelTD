@@ -28,7 +28,15 @@ class PlayingState(GameStateProtocol):
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
     ) -> None:
-        self.enemy_manager.update()
+        goal_enemies = self.enemy_manager.update()
+        if goal_enemies:
+            print(f"Goal reached by {len(goal_enemies)} enemies!")
+            manager.base_hp -= len(goal_enemies)
+            # ゴール到達エネミーはリストから除去
+            self.enemy_manager.enemies = [e for e in self.enemy_manager.enemies if not (e.is_goal() and e.is_alive)]
+            if manager.base_hp <= 0:
+                # ゲームオーバー遷移
+                state_manager.change_state(state_manager.gameover_state)
 
     def draw(self, manager: "InGameManager") -> None:
         """

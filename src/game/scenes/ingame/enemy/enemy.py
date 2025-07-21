@@ -25,10 +25,12 @@ class Enemy(ABC):
         self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
 
     @abstractmethod
-    def update(self) -> None:
+    def update(self) -> bool:
         """
         毎フレーム呼び出し。経路に沿って移動。
         HPが0以下なら死亡。
+        Returns:
+            bool: 防衛拠点に到達したらTrue
         """
         pass
 
@@ -65,32 +67,37 @@ class BasicEnemy(Enemy):
     既存の挙動をそのまま実装。
     """
 
-    def update(self) -> None:
-        if not self.is_alive:
-            return
-        if self.hp <= 0:
-            self.is_alive = False
-            return
-        # HPバータイマー減少
-        if self.hp_bar_timer > 0:
-            self.hp_bar_timer -= 1
-        # 経路移動
-        if self.path_index < len(self.path):
-            target_x, target_y = self.path[self.path_index]
-            dx = target_x - self.x
-            dy = target_y - self.y
-            dist = (dx**2 + dy**2) ** 0.5
-            if dist < self.speed:
-                self.x = target_x
-                self.y = target_y
-                self.path_index += 1
+    def update(self) -> bool:
+        def update_path() -> None:
+            if not self.is_alive:
+                return
+            if self.hp <= 0:
+                self.is_alive = False
+                return
+            # HPバータイマー減少
+            if self.hp_bar_timer > 0:
+                self.hp_bar_timer -= 1
+            # 経路移動
+            if self.path_index < len(self.path):
+                target_x, target_y = self.path[self.path_index]
+                dx = target_x - self.x
+                dy = target_y - self.y
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist < self.speed:
+                    self.x = target_x
+                    self.y = target_y
+                    self.path_index += 1
+                else:
+                    if dist != 0:
+                        self.x += self.speed * dx / dist
+                        self.y += self.speed * dy / dist
             else:
-                if dist != 0:
-                    self.x += self.speed * dx / dist
-                    self.y += self.speed * dy / dist
-        else:
-            # ゴール到達
-            self.is_alive = False
+                # ゴール到達
+                self.is_alive = False
+            return
+
+        update_path()
+        return self.is_goal()
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
