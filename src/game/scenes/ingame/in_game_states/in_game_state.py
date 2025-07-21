@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from .in_game_state_manager import InGameStateManager
     from ..ingame_manager import InGameManager
 
+from .state_result import StateResult
+
 
 class GameStateProtocol(Protocol):
     """
@@ -20,7 +22,7 @@ class GameStateProtocol(Protocol):
 
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
-    ) -> None:
+    ) -> StateResult:
         """
         状態ごとの更新処理。
 

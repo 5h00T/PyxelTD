@@ -32,6 +32,7 @@ class Game:
                 pyxel.KEY_P,
                 pyxel.KEY_Q,
                 pyxel.KEY_Z,
+                pyxel.KEY_R,
             ]
         )
         self.scenes = {

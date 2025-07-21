@@ -14,6 +14,7 @@ from .clear_state import ClearState
 from .gameover_state import GameOverState
 from .in_game_state import GameStateProtocol
 from ..enemy.enemy_manager import EnemyManager
+from .state_result import StateResult
 
 
 class InGameStateManager:
@@ -38,11 +39,12 @@ class InGameStateManager:
         print(f"Changing state to {new_state.__class__.__name__}")
         self.current_state = new_state
 
-    def update(self, manager: "InGameManager", input_manager: "InputManager") -> None:
+    def update(self, manager: "InGameManager", input_manager: "InputManager") -> StateResult:
         """
         現在の状態の更新処理。
         """
-        self.current_state.update(self, manager, input_manager)
+        print(f"Updating state: {self.current_state.__class__.__name__}")
+        return self.current_state.update(self, manager, input_manager)
 
     def draw(self, manager: "InGameManager") -> None:
         """

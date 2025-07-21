@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
 from ..enemy.enemy_manager import EnemyManager
+from .state_result import StateResult
 
 
 class PlayingState(GameStateProtocol):
@@ -27,7 +28,7 @@ class PlayingState(GameStateProtocol):
 
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
-    ) -> None:
+    ) -> StateResult:
         goal_enemies = self.enemy_manager.update()
         if goal_enemies:
             print(f"Goal reached by {len(goal_enemies)} enemies!")
@@ -37,6 +38,8 @@ class PlayingState(GameStateProtocol):
             if manager.base_hp <= 0:
                 # ゲームオーバー遷移
                 state_manager.change_state(state_manager.gameover_state)
+
+        return StateResult.NONE
 
     def draw(self, manager: "InGameManager") -> None:
         """

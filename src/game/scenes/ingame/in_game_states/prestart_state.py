@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .in_game_state_manager import InGameStateManager
     from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
+from .state_result import StateResult
 
 
 class PreStartState(GameStateProtocol):
@@ -19,12 +20,14 @@ class PreStartState(GameStateProtocol):
 
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
-    ) -> None:
+    ) -> StateResult:
         # スペースキーでゲーム開始
         import pyxel
 
         if input_manager.is_triggered(pyxel.KEY_SPACE):
             state_manager.change_state(state_manager.playing_state)
+
+        return StateResult.NONE
 
     def draw(self, manager: "InGameManager") -> None:
         """

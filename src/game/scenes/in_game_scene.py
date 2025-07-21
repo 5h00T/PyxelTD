@@ -12,6 +12,8 @@ import pyxel
 from .base_scene import BaseScene
 from .ingame.in_game_states.in_game_state import GameStateProtocol
 from .ingame.ingame_manager import InGameManager
+from .scene_type import SceneType
+from .ingame.ingame_result import InGameResult
 
 
 class InGameScene(BaseScene):
@@ -23,7 +25,7 @@ class InGameScene(BaseScene):
     def __init__(self, stage_number: int = 1) -> None:
         super().__init__()
         self.stage_number = stage_number
-        self.manager = InGameManager(stage_number)
+        self.manager = InGameManager(self, stage_number)
 
     def change_state(self, new_state: GameStateProtocol) -> None:
         """
@@ -38,7 +40,11 @@ class InGameScene(BaseScene):
         インゲーム画面の更新処理。
         状態管理はmanagerに委譲。
         """
-        self.manager.update(input_manager)
+        result = self.manager.update(input_manager)
+        if result == InGameResult.RETRY:
+            game.change_scene(new_scene=SceneType.IN_GAME)
+        elif result == InGameResult.STAGE_SELECT:
+            game.change_scene(new_scene=SceneType.STAGE_SELECT)
 
     def draw(self, game: "Game") -> None:
         """

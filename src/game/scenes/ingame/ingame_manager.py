@@ -3,9 +3,12 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from ...game import Game
     from ...input_manager import InputManager
+    from ..in_game_scene import InGameScene
 from .in_game_states.in_game_state_manager import InGameStateManager
 from .map import Map
 from .enemy.enemy_manager import EnemyManager
+from .in_game_states.state_result import StateResult
+from .ingame_result import InGameResult
 
 
 class Unit:
@@ -26,49 +29,14 @@ InGameManager - インゲームのマップとステート管理を一元化す�
 
 
 class InGameManager:
-
-    def can_place_unit_at(self, x: int, y: int) -> bool:
-        """
-        Returns True if a player unit can be placed at (x, y).
-        Not placeable if:
-        - Already occupied
-        - Out of map bounds
-        - Not a placeable tile (tile != 1)
-        """
-        if (x, y) in self.player_unit_manager.units:
-            return False
-        if not (0 <= x < self.map.width and 0 <= y < self.map.height):
-            return False
-        tile = self.map.get_tile(x, y)
-        if tile != 1:
-            return False
-        return True
-
-    def mask_outside_map_area(self) -> None:
-        """
-        マップ描画範囲外（右・下）を黒で塗りつぶす。
-        画面左上からマップを描画する前提。
-        """
-        import pyxel
-        from .constants import TILE_SIZE, VIEW_TILE_WIDTH, VIEW_TILE_HEIGHT
-
-        map_screen_w = VIEW_TILE_WIDTH * TILE_SIZE
-        map_screen_h = VIEW_TILE_HEIGHT * TILE_SIZE
-        mask_color = 0  # 黒で塗りつぶし
-
-        # 右側の余白
-        if map_screen_w < pyxel.width:
-            pyxel.rect(map_screen_w, 0, pyxel.width - map_screen_w, pyxel.height, mask_color)
-        # 下側の余白
-        if map_screen_h < pyxel.height:
-            pyxel.rect(0, map_screen_h, pyxel.width, pyxel.height - map_screen_h, mask_color)
-
     """
     インゲームのマップとステート管理を担当。
     """
 
-    def __init__(self, stage_number: int = 1) -> None:
+    def __init__(self, ingame_scene: "InGameScene", stage_number: int = 1) -> None:
+        self.ingame_scene = ingame_scene
         # 仮: ステージごとにサイズ可変、最低14x14保証
+        self.stage_number = stage_number
         width = max(16, 14)
         height = max(12, 14)
         self.map = Map(width=width, height=height)
@@ -100,18 +68,10 @@ class InGameManager:
         self.unit_ui_cursor: int = 0
 
         # --- Base HP ---
-        self.base_hp: int = 10  # 防衛拠点のHP
-        self.max_base_hp: int = 10
+        self.base_hp: int = 2  # 防衛拠点のHP
+        self.max_base_hp = self.base_hp  # 最大HP
 
-    def change_scene(self, scene_name: str) -> None:
-        """
-        シーン遷移コールバックを呼び出す。
-        Args:
-            scene_name (str): 遷移先シーン名（例: "title"）
-        """
-        ...
-
-    def update(self, input_manager: "InputManager") -> None:
+    def update(self, input_manager: "InputManager") -> InGameResult:
         """
         インゲームの状態更新処理。
         カーソル・カメラの移動も管理。
@@ -141,7 +101,7 @@ class InGameManager:
                 # キャンセル
                 self.is_selecting_unit = False
                 self.selected_cell = None
-            return
+            return InGameResult.NONE
 
         # --- 通常操作 ---
         if input_manager.is_triggered(pyxel.KEY_UP):
@@ -163,7 +123,15 @@ class InGameManager:
 
         # カメラ移動
         self.camera.move_to_cursor(*self.cursor.get_pos())
-        self.state_manager.update(self, input_manager)
+
+        result: InGameResult = InGameResult.NONE
+        state_result = self.state_manager.update(self, input_manager)
+        if state_result == StateResult.RETRY:
+            result = InGameResult.RETRY
+        elif state_result == StateResult.STAGE_SELECT:
+            result = InGameResult.STAGE_SELECT
+
+        return result
 
     def draw(self, game: "Game") -> None:
         """
@@ -215,3 +183,39 @@ class InGameManager:
         # カーソルは上に描画
         self.cursor.draw(camera_x, camera_y)
         # self.state_manager.draw(self)
+
+    def can_place_unit_at(self, x: int, y: int) -> bool:
+        """
+        Returns True if a player unit can be placed at (x, y).
+        Not placeable if:
+        - Already occupied
+        - Out of map bounds
+        - Not a placeable tile (tile != 1)
+        """
+        if (x, y) in self.player_unit_manager.units:
+            return False
+        if not (0 <= x < self.map.width and 0 <= y < self.map.height):
+            return False
+        tile = self.map.get_tile(x, y)
+        if tile != 1:
+            return False
+        return True
+
+    def mask_outside_map_area(self) -> None:
+        """
+        マップ描画範囲外（右・下）を黒で塗りつぶす。
+        画面左上からマップを描画する前提。
+        """
+        import pyxel
+        from .constants import TILE_SIZE, VIEW_TILE_WIDTH, VIEW_TILE_HEIGHT
+
+        map_screen_w = VIEW_TILE_WIDTH * TILE_SIZE
+        map_screen_h = VIEW_TILE_HEIGHT * TILE_SIZE
+        mask_color = 0  # 黒で塗りつぶし
+
+        # 右側の余白
+        if map_screen_w < pyxel.width:
+            pyxel.rect(map_screen_w, 0, pyxel.width - map_screen_w, pyxel.height, mask_color)
+        # 下側の余白
+        if map_screen_h < pyxel.height:
+            pyxel.rect(0, map_screen_h, pyxel.width, pyxel.height - map_screen_h, mask_color)

@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .in_game_state_manager import InGameStateManager
     from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
+from .state_result import StateResult
 
 
 class ClearState(GameStateProtocol):
@@ -19,15 +20,27 @@ class ClearState(GameStateProtocol):
 
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
-    ) -> None:
-        # エンターキーでタイトルへ戻る
+    ) -> StateResult:
+        """
+        ゲームクリア時の入力処理。
+        Rキーでリトライ、Qキーでメニューに戻る。
+        """
         import pyxel
 
-        if input_manager.is_triggered(pyxel.KEY_RETURN):
-            manager.change_scene("title")
+        result = StateResult.NONE
+        if input_manager.is_triggered(pyxel.KEY_R):
+            result = StateResult.RETRY
+        elif input_manager.is_triggered(pyxel.KEY_Q):
+            result = StateResult.STAGE_SELECT
+
+        return result
 
     def draw(self, manager: "InGameManager") -> None:
         """
-        マップの描写を行う。
+        ゲームクリア画面の描画。
         """
+        import pyxel
+
         manager.map.draw()
+        pyxel.text(60, 40, "GAME CLEAR", 10)
+        pyxel.text(40, 60, "R: Retry   Q: Menu", 7)
