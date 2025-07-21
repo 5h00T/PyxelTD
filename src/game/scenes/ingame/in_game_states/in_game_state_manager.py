@@ -13,7 +13,7 @@ from .playing_state import PlayingState
 from .clear_state import ClearState
 from .gameover_state import GameOverState
 from .in_game_state import GameStateProtocol
-from ..enemy_manager import EnemyManager
+from ..enemy.enemy_manager import EnemyManager
 
 
 class InGameStateManager:

@@ -2,7 +2,7 @@
 Bullet - ユニットの弾（攻撃）クラス
 """
 
-from .enemy import Enemy
+from .enemy.enemy import Enemy
 
 
 class Bullet:

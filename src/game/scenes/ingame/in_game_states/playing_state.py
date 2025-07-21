@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from .in_game_state_manager import InGameStateManager
     from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
-from ..enemy_manager import EnemyManager
+from ..enemy.enemy_manager import EnemyManager
 
 
 class PlayingState(GameStateProtocol):

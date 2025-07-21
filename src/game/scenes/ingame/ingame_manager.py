@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...input_manager import InputManager
 from .in_game_states.in_game_state_manager import InGameStateManager
 from .map import Map
-from .enemy_manager import EnemyManager
+from .enemy.enemy_manager import EnemyManager
 
 
 class Unit:
@@ -83,8 +83,8 @@ class InGameManager:
         self.camera = Camera(self.map.width, self.map.height)
 
         # --- Player unit master ---
-        from .player_unit import PLAYER_UNIT_MASTER
-        from .player_unit_manager import PlayerUnitManager
+        from .player_unit.player_unit import PLAYER_UNIT_MASTER
+        from .player_unit.player_unit_manager import PlayerUnitManager
 
         self.unit_list = PLAYER_UNIT_MASTER
         self.player_unit_manager = PlayerUnitManager()

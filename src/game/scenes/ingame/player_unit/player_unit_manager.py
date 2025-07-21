@@ -4,7 +4,7 @@ PlayerUnitManager - プレイヤーユニットの配置・管理・攻撃処理
 
 from typing import Dict, Tuple
 from .player_unit import PlayerUnit
-from .enemy_manager import EnemyManager
+from ..enemy.enemy_manager import EnemyManager
 
 
 class PlayerUnitInstance:
@@ -32,7 +32,7 @@ class PlayerUnitManager:
 
     def __init__(self) -> None:
         self.units: Dict[Tuple[int, int], PlayerUnitInstance] = {}
-        from .bullet import Bullet
+        from ..bullet import Bullet
 
         self.bullets: list[Bullet] = []
 
@@ -60,7 +60,7 @@ class PlayerUnitManager:
         """
         全ユニットの攻撃処理・弾の更新を行う。
         """
-        from .bullet import Bullet
+        from ..bullet import Bullet
 
         # 弾の更新・消滅処理
         for bullet in self.bullets:
@@ -102,7 +102,7 @@ class PlayerUnitManager:
         全ユニット・弾を描画（仮: 四角形＋レベル表示＋弾）
         """
         import pyxel
-        from .constants import TILE_SIZE
+        from ..constants import TILE_SIZE
 
         for inst in self.units.values():
             sx = (inst.pos[0] - camera_x) * TILE_SIZE

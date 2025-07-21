@@ -4,7 +4,7 @@ EnemyManager - 敵ユニットの管理クラス
 
 from typing import List
 from .enemy import Enemy
-from .map import Map
+from ..map import Map
 
 
 class EnemyManager:

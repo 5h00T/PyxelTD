@@ -90,7 +90,7 @@ class BasicEnemy(Enemy):
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
-        from .constants import TILE_SIZE
+        from ..constants import TILE_SIZE
 
         screen_x = int((self.x - camera_x) * TILE_SIZE)
         screen_y = int((self.y - camera_y) * TILE_SIZE)
