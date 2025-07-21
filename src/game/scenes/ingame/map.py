@@ -255,4 +255,19 @@ class Map:
                     pyxel.line(px, py, px + TILE_SIZE - 1, py + TILE_SIZE - 1, 8)  # バツ印
                     pyxel.line(px + TILE_SIZE - 1, py, px, py + TILE_SIZE - 1, 8)
                 elif tile == TILE_GOAL:
-                    pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 10)
+                    # --- 拠点（城）グラフィック ---
+                    # 土台
+                    pyxel.rect(px, py, TILE_SIZE, TILE_SIZE, 13)  # 薄グレー
+                    # 城壁
+                    pyxel.rectb(px, py, TILE_SIZE, TILE_SIZE, 1)  # 黒枠
+                    # 中央塔
+                    tower_w = TILE_SIZE // 2
+                    tower_h = TILE_SIZE // 2
+                    tower_x = px + (TILE_SIZE - tower_w) // 2
+                    tower_y = py + (TILE_SIZE - tower_h) // 2
+                    pyxel.rect(tower_x, tower_y, tower_w, tower_h, 7)  # 白
+                    # 旗
+                    flag_x = tower_x + tower_w // 2
+                    flag_y = tower_y
+                    pyxel.line(flag_x, flag_y, flag_x, flag_y - 3, 8)  # ポール
+                    pyxel.rect(flag_x, flag_y - 3, 3, 2, 8)  # 赤旗
