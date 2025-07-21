@@ -4,7 +4,6 @@ EnemyManager - 敵ユニットの管理クラス
 
 from typing import List
 from .enemy import Enemy
-from ..map import Map
 
 
 class EnemyManager:
@@ -54,24 +53,4 @@ class EnemyManager:
         """
         self.enemies.clear()
 
-    def spawn_sample_enemies(self, map_obj: Map) -> None:
-        """
-        サンプルエネミーを複数生成して追加。
-        マップの複数経路に沿って移動する。
-        Args:
-            map_obj (Map): マップオブジェクト
-        """
-        from .enemy import BasicEnemy
-
-        paths = map_obj.get_all_paths_from_entrances_to_goal()
-        if not paths:
-            return
-        # 各経路ごとにエネミーを生成
-        for path in paths:
-            if not path:
-                continue
-            sx, sy = path[0]
-            # 各入口から3体ずつ生成
-            for i in range(3):
-                enemy = BasicEnemy(x=sx, y=sy, speed=0.2 + 0.1 * i, hp=10 + 5 * i, path=path)
-                self.spawn_enemy(enemy)
+    # サンプルエネミー自動生成はStageManagerに移譲。今後はこのメソッドは使わない。

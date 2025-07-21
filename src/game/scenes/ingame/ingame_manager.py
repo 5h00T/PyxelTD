@@ -73,8 +73,13 @@ class InGameManager:
         height = max(12, 14)
         self.map = Map(width=width, height=height)
         self.enemy_manager = EnemyManager()
-        # エネミーのサンプル生成（マップ経路に沿う）
-        self.enemy_manager.spawn_sample_enemies(self.map)
+        # --- ステージマスターデータ・マネージャ ---
+        from .stage_master import SAMPLE_STAGE_MASTER
+        from .stage_manager import StageManager
+
+        # マップ生成後にパスをセット
+        SAMPLE_STAGE_MASTER.paths = self.map.get_all_paths_from_entrances_to_goal()
+        self.stage_manager = StageManager(SAMPLE_STAGE_MASTER, self.enemy_manager)
         self.state_manager = InGameStateManager(self.enemy_manager)
         from .cursor import Cursor
         from .camera import Camera
@@ -114,6 +119,8 @@ class InGameManager:
         """
         import pyxel
 
+        # ステージ進行・エネミー出現
+        self.stage_manager.update()
         self.player_unit_manager.update(self.enemy_manager)
 
         if self.is_selecting_unit:
