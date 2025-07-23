@@ -24,15 +24,35 @@ class Enemy(ABC):
         self.is_alive = True  # Falseなら死亡・ゴール到達
         self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
 
-    @abstractmethod
     def update(self) -> bool:
         """
-        毎フレーム呼び出し。経路に沿って移動。
-        HPが0以下なら死亡。
+        経路に沿って移動し、HPが0以下なら死亡。
         Returns:
             bool: 防衛拠点に到達したらTrue
         """
-        pass
+        if not self.is_alive:
+            return False
+        if self.hp <= 0:
+            self.is_alive = False
+            return False
+        if self.hp_bar_timer > 0:
+            self.hp_bar_timer -= 1
+        if self.path_index < len(self.path):
+            target_x, target_y = self.path[self.path_index]
+            dx = target_x - self.x
+            dy = target_y - self.y
+            dist = (dx**2 + dy**2) ** 0.5
+            if dist < self.speed:
+                self.x = target_x
+                self.y = target_y
+                self.path_index += 1
+            else:
+                if dist != 0:
+                    self.x += self.speed * dx / dist
+                    self.y += self.speed * dy / dist
+        else:
+            self.is_alive = False
+        return self.is_goal()
 
     @abstractmethod
     def draw(self, camera_x: int, camera_y: int) -> None:
@@ -42,62 +62,36 @@ class Enemy(ABC):
         """
         pass
 
-    @abstractmethod
     def damage(self, amount: int) -> None:
         """
-        ダメージを受ける。
-        Args:
-            amount (int): ダメージ量
+        ダメージを受ける。HPが0以下なら死亡。
+        HPバー表示タイマーをリセット。
         """
-        pass
+        self.hp -= amount
+        self.hp_bar_timer = 60
+        if self.hp <= 0:
+            self.is_alive = False
 
-    @abstractmethod
     def is_goal(self) -> bool:
         """
         ゴール到達判定。
         Returns:
             bool: ゴールに到達したらTrue
         """
-        pass
+        return self.path_index >= len(self.path)
 
 
 class BasicEnemy(Enemy):
     """
-    テスト用の基本エネミー。
-    既存の挙動をそのまま実装。
+    標準的な敵ユニット。
     """
 
-    def update(self) -> bool:
-        def update_path() -> None:
-            if not self.is_alive:
-                return
-            if self.hp <= 0:
-                self.is_alive = False
-                return
-            # HPバータイマー減少
-            if self.hp_bar_timer > 0:
-                self.hp_bar_timer -= 1
-            # 経路移動
-            if self.path_index < len(self.path):
-                target_x, target_y = self.path[self.path_index]
-                dx = target_x - self.x
-                dy = target_y - self.y
-                dist = (dx**2 + dy**2) ** 0.5
-                if dist < self.speed:
-                    self.x = target_x
-                    self.y = target_y
-                    self.path_index += 1
-                else:
-                    if dist != 0:
-                        self.x += self.speed * dx / dist
-                        self.y += self.speed * dy / dist
-            else:
-                # ゴール到達
-                self.is_alive = False
-            return
+    DEFAULT_HP = 15
+    DEFAULT_SPEED = 0.05
+    COLOR = 8  # 赤
 
-        update_path()
-        return self.is_goal()
+    def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -106,27 +100,76 @@ class BasicEnemy(Enemy):
         screen_x = int((self.x - camera_x) * TILE_SIZE)
         screen_y = int((self.y - camera_y) * TILE_SIZE)
         if self.is_alive:
-            pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, 8)  # 赤丸
-            # ダメージを受けてから一定時間HPバー表示
+            pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, self.COLOR)
             if self.hp_bar_timer > 0 and self.max_hp > 0:
                 bar_w = TILE_SIZE
                 bar_h = 3
                 bar_x = screen_x
-                bar_y = screen_y + TILE_SIZE  # エネミーの下
+                bar_y = screen_y + TILE_SIZE
                 hp_ratio = max(0, self.hp) / self.max_hp
                 filled_w = int(bar_w * hp_ratio)
-                pyxel.rect(bar_x, bar_y, bar_w, bar_h, 0)  # 背景（黒）
-                pyxel.rect(bar_x, bar_y, filled_w, bar_h, 11)  # HP部分（黄）
+                pyxel.rect(bar_x, bar_y, bar_w, bar_h, 0)
+                pyxel.rect(bar_x, bar_y, filled_w, bar_h, 11)
 
-    def damage(self, amount: int) -> None:
-        """
-        指定ダメージを受ける。HPが0以下なら死亡。
-        HPバー表示タイマーをリセット。
-        """
-        self.hp -= amount
-        self.hp_bar_timer = 60  # 60フレーム（約1秒）HPバー表示
-        if self.hp <= 0:
-            self.is_alive = False
 
-    def is_goal(self) -> bool:
-        return self.path_index >= len(self.path)
+class FastEnemy(Enemy):
+    """
+    高速移動型の敵ユニット。
+    """
+
+    DEFAULT_HP = 8
+    DEFAULT_SPEED = 0.12
+    COLOR = 10  # 緑
+
+    def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path)
+
+    def draw(self, camera_x: int, camera_y: int) -> None:
+        import pyxel
+        from ..constants import TILE_SIZE
+
+        screen_x = int((self.x - camera_x) * TILE_SIZE)
+        screen_y = int((self.y - camera_y) * TILE_SIZE)
+        if self.is_alive:
+            pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, self.COLOR)
+            if self.hp_bar_timer > 0 and self.max_hp > 0:
+                bar_w = TILE_SIZE
+                bar_h = 3
+                bar_x = screen_x
+                bar_y = screen_y + TILE_SIZE
+                hp_ratio = max(0, self.hp) / self.max_hp
+                filled_w = int(bar_w * hp_ratio)
+                pyxel.rect(bar_x, bar_y, bar_w, bar_h, 0)
+                pyxel.rect(bar_x, bar_y, filled_w, bar_h, 11)
+
+
+class TankEnemy(Enemy):
+    """
+    高耐久・低速型の敵ユニット。
+    """
+
+    DEFAULT_HP = 40
+    DEFAULT_SPEED = 0.025
+    COLOR = 12  # 紫
+
+    def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path)
+
+    def draw(self, camera_x: int, camera_y: int) -> None:
+        import pyxel
+        from ..constants import TILE_SIZE
+
+        screen_x = int((self.x - camera_x) * TILE_SIZE)
+        screen_y = int((self.y - camera_y) * TILE_SIZE)
+        if self.is_alive:
+            # Tank: 四角形で描画
+            pyxel.rect(screen_x, screen_y, TILE_SIZE, TILE_SIZE, self.COLOR)
+            if self.hp_bar_timer > 0 and self.max_hp > 0:
+                bar_w = TILE_SIZE
+                bar_h = 3
+                bar_x = screen_x
+                bar_y = screen_y + TILE_SIZE
+                hp_ratio = max(0, self.hp) / self.max_hp
+                filled_w = int(bar_w * hp_ratio)
+                pyxel.rect(bar_x, bar_y, bar_w, bar_h, 0)
+                pyxel.rect(bar_x, bar_y, filled_w, bar_h, 11)

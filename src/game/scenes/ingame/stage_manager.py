@@ -5,6 +5,9 @@ StageManager - ステージ進行・エネミー出現管理クラス
 from .stage_master import StageMasterData, EnemySpawnData
 from .enemy.enemy_manager import EnemyManager
 from .enemy.enemy import BasicEnemy
+from .enemy.enemy import Enemy
+from .enemy.enemy import FastEnemy
+from .enemy.enemy import TankEnemy
 
 
 class StageManager:
@@ -45,13 +48,15 @@ class StageManager:
         マスターデータに従いエネミーを生成・EnemyManagerに追加
         """
         path = self.stage_master.paths[spawn.path_id]
-        if spawn.enemy_type == "BasicEnemy":
-            enemy = BasicEnemy(
-                x=path[0][0],
-                y=path[0][1],
-                speed=spawn.params.get("speed", 0.2),
-                hp=spawn.params.get("hp", 10),
-                path=path,
-            )
-            self.enemy_manager.spawn_enemy(enemy)
-        # 他のエネミー種もここで分岐可能
+        # 敵種ごとにクラスを分岐
+        enemy: Enemy
+        if spawn.enemy_type == BasicEnemy.__name__:
+            enemy = BasicEnemy(x=path[0][0], y=path[0][1], path=path)
+        elif spawn.enemy_type == FastEnemy.__name__:
+            enemy = FastEnemy(x=path[0][0], y=path[0][1], path=path)
+        elif spawn.enemy_type == TankEnemy.__name__:
+            enemy = TankEnemy(x=path[0][0], y=path[0][1], path=path)
+        else:
+            # 未知の敵種はBasicEnemyで代用
+            enemy = BasicEnemy(x=path[0][0], y=path[0][1], path=path)
+        self.enemy_manager.spawn_enemy(enemy)
