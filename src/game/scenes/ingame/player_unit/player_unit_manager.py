@@ -99,16 +99,15 @@ class PlayerUnitManager:
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         """
-        全ユニット・弾を描画（仮: 四角形＋レベル表示＋弾）
+        マップ上のユニットを描画する。
         """
-        import pyxel
         from ..constants import TILE_SIZE
 
         for inst in self.units.values():
             sx = (inst.pos[0] - camera_x) * TILE_SIZE
             sy = (inst.pos[1] - camera_y) * TILE_SIZE
-            color = 8 if inst.unit.is_aoe else 11
-            pyxel.rect(sx, sy, TILE_SIZE, TILE_SIZE, color)
-            pyxel.text(sx, sy, str(inst.level), 7)
+            inst.unit.draw(sx, sy, inst.level, TILE_SIZE)
+
+        # 弾の描画
         for bullet in self.bullets:
             bullet.draw(camera_x, camera_y)
