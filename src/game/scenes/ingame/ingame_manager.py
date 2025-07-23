@@ -7,7 +7,6 @@ if TYPE_CHECKING:
 from .in_game_states.in_game_state_manager import InGameStateManager
 from .map import Map
 from .enemy.enemy_manager import EnemyManager
-from .in_game_states.state_result import StateResult
 from .ingame_result import InGameResult
 
 
@@ -74,63 +73,17 @@ class InGameManager:
     def update(self, input_manager: "InputManager") -> InGameResult:
         """
         インゲームの状態更新処理。
-        カーソル・カメラの移動も管理。
-        ユニット配置UIの操作も統合。
+        現在のステートのupdateのみ呼び出し、
+        ゲーム進行・カーソル・カメラ・エネミー等はplaying_stateでのみ動作する。
         """
-        import pyxel
-
-        # ステージ進行・エネミー出現
-        self.stage_manager.update()
-        self.player_unit_manager.update(self.enemy_manager)
-
-        if self.is_selecting_unit:
-            # --- Unit list UI操作 ---
-            if input_manager.is_triggered(pyxel.KEY_UP):
-                self.unit_ui_cursor = (self.unit_ui_cursor - 1) % len(self.unit_list)
-            elif input_manager.is_triggered(pyxel.KEY_DOWN):
-                self.unit_ui_cursor = (self.unit_ui_cursor + 1) % len(self.unit_list)
-            elif input_manager.is_triggered(pyxel.KEY_Z):
-                # 配置
-                if self.selected_cell is not None:
-                    x, y = self.selected_cell
-                    unit = self.unit_list[self.unit_ui_cursor]
-                    self.player_unit_manager.place_unit(unit, x, y)
-                self.is_selecting_unit = False
-                self.selected_cell = None
-            elif input_manager.is_triggered(pyxel.KEY_X):
-                # キャンセル
-                self.is_selecting_unit = False
-                self.selected_cell = None
-            return InGameResult.NONE
-
-        # --- 通常操作 ---
-        if input_manager.is_triggered(pyxel.KEY_UP):
-            self.cursor.move(0, -1)
-        elif input_manager.is_triggered(pyxel.KEY_DOWN):
-            self.cursor.move(0, 1)
-        elif input_manager.is_triggered(pyxel.KEY_LEFT):
-            self.cursor.move(-1, 0)
-        elif input_manager.is_triggered(pyxel.KEY_RIGHT):
-            self.cursor.move(1, 0)
-
-        # Zキーでユニット配置モードへ
-        if input_manager.is_triggered(pyxel.KEY_Z):
-            x, y = self.cursor.get_pos()
-            if self.can_place_unit_at(x, y):
-                self.is_selecting_unit = True
-                self.selected_cell = (x, y)
-                self.unit_ui_cursor = 0
-
-        # カメラ移動
-        self.camera.move_to_cursor(*self.cursor.get_pos())
-
-        result: InGameResult = InGameResult.NONE
         state_result = self.state_manager.update(self, input_manager)
+        result: InGameResult = InGameResult.NONE
+        from .in_game_states.state_result import StateResult
+
         if state_result == StateResult.RETRY:
             result = InGameResult.RETRY
         elif state_result == StateResult.STAGE_SELECT:
             result = InGameResult.STAGE_SELECT
-
         return result
 
     def draw(self, game: "Game") -> None:
