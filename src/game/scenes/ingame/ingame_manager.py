@@ -8,6 +8,7 @@ from .in_game_states.in_game_state_manager import InGameStateManager
 from .map import Map
 from .enemy.enemy_manager import EnemyManager
 from .ingame_result import InGameResult
+from ...utils.font_renderer import FontRenderer
 
 
 class Unit:
@@ -119,19 +120,28 @@ class InGameManager:
             ui_w = 56
             ui_h = 12 + 16 * len(self.unit_list)
             pyxel.rect(ui_x, ui_y, ui_w, ui_h, 5)  # UI背景
-            pyxel.text(ui_x + 4, ui_y + 2, "ユニット選択", 7)
+            # FontRenderer.draw_text(21, 18, s, 7, font_name="gothic")
+            # pyxel.text(ui_x + 4, ui_y + 2, "ユニット選択", 7)
+            FontRenderer.draw_text(ui_x + 4, ui_y + 2, "ユニット選択", 7, font_name="default")
             for idx, unit in enumerate(self.unit_list):
                 y = ui_y + 16 + idx * 16
                 # 選択中はハイライト
                 if idx == self.unit_ui_cursor:
                     pyxel.rect(ui_x + 2, y - 2, ui_w - 4, 14, 6)
-                pyxel.text(ui_x + 8, y, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0)
+                # pyxel.text(ui_x + 8, y, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0)
+                FontRenderer.draw_text(
+                    ui_x + 8, y + 8, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0, font_name="default"
+                )
             # 選択中ユニットの説明
             sel_unit = self.unit_list[self.unit_ui_cursor]
-            pyxel.text(ui_x + 4, ui_y + ui_h - 12, sel_unit.description, 13)
+            # pyxel.text(ui_x + 4, ui_y + ui_h - 12, sel_unit.description, 13)
+            FontRenderer.draw_text(ui_x + 4, ui_y + ui_h - 12, sel_unit.description, 13, font_name="default")
 
         # --- Base HP表示 ---
-        pyxel.text(8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7)
+        # pyxel.text(8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7)
+        FontRenderer.draw_text(
+            8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7, font_name="default"
+        )
 
         # カーソルは上に描画
         self.cursor.draw(camera_x, camera_y)

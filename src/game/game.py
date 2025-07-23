@@ -1,3 +1,5 @@
+from .utils.font_renderer import FontRenderer
+
 """
 ゲームループ本体とシーン管理を行うGameクラス。
 """
@@ -20,6 +22,9 @@ class Game:
 
     def __init__(self) -> None:
         pyxel.init(160, 120)
+        # フォント登録（必要に応じて複数登録可）
+        FontRenderer.register_font("default", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_mincho.bdf")
+        FontRenderer.register_font("gothic", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_gothic.bdf")
         self.input_manager = InputManager(
             [
                 # ESCは終了なので除外

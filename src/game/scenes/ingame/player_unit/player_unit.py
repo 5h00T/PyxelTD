@@ -70,9 +70,9 @@ class PlayerUnit:
 PLAYER_UNIT_MASTER: List[PlayerUnit] = [
     PlayerUnit(
         unit_id=1,
-        name="Soldier",
+        name="近距離",
         icon=0,
-        description="Melee single-target unit",
+        description="近距離単体攻撃ユニット",
         cost=0,
         attack=[10, 13, 16, 20, 25],
         range=[1, 1, 1, 1, 1],
@@ -82,9 +82,9 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
     ),
     PlayerUnit(
         unit_id=2,
-        name="Archer",
+        name="弓兵",
         icon=1,
-        description="Ranged single-target unit",
+        description="遠距離単体攻撃ユニット",
         cost=0,
         attack=[7, 10, 13, 17, 22],
         range=[3, 3, 4, 4, 5],
@@ -94,9 +94,9 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
     ),
     PlayerUnit(
         unit_id=3,
-        name="Mage",
+        name="魔法使い",
         icon=2,
-        description="Area attack unit",
+        description="範囲攻撃ユニット",
         cost=0,
         attack=[5, 7, 10, 14, 18],
         range=[2, 2, 3, 3, 4],
