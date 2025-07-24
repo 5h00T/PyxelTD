@@ -100,7 +100,12 @@ class BasicEnemy(Enemy):
         screen_x = int((self.x - camera_x) * TILE_SIZE)
         screen_y = int((self.y - camera_y) * TILE_SIZE)
         if self.is_alive:
-            pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, self.COLOR)
+            # 赤い丸＋白縁＋中央に点
+            cx = screen_x + TILE_SIZE // 2
+            cy = screen_y + TILE_SIZE // 2
+            pyxel.circ(cx, cy, TILE_SIZE // 2, 7)  # 白縁
+            pyxel.circ(cx, cy, TILE_SIZE // 2 - 2, self.COLOR)  # 本体
+            pyxel.pset(cx, cy, 0)  # 黒点
             if self.hp_bar_timer > 0 and self.max_hp > 0:
                 bar_w = TILE_SIZE
                 bar_h = 3
@@ -131,7 +136,14 @@ class FastEnemy(Enemy):
         screen_x = int((self.x - camera_x) * TILE_SIZE)
         screen_y = int((self.y - camera_y) * TILE_SIZE)
         if self.is_alive:
-            pyxel.circ(screen_x + TILE_SIZE // 2, screen_y + TILE_SIZE // 2, TILE_SIZE // 2, self.COLOR)
+            # 緑の三角形＋白縁
+            cx = screen_x + TILE_SIZE // 2
+            cy = screen_y + TILE_SIZE // 2
+            size = TILE_SIZE // 2
+            # 白縁
+            pyxel.tri(cx, cy - size, cx - size, cy + size, cx + size, cy + size, 7)
+            # 本体
+            pyxel.tri(cx, cy - size + 2, cx - size + 2, cy + size - 2, cx + size - 2, cy + size - 2, self.COLOR)
             if self.hp_bar_timer > 0 and self.max_hp > 0:
                 bar_w = TILE_SIZE
                 bar_h = 3
@@ -162,8 +174,10 @@ class TankEnemy(Enemy):
         screen_x = int((self.x - camera_x) * TILE_SIZE)
         screen_y = int((self.y - camera_y) * TILE_SIZE)
         if self.is_alive:
-            # Tank: 四角形で描画
+            # Tank: 紫の大きな四角＋黒縁＋中央に小さい四角
+            pyxel.rect(screen_x - 2, screen_y - 2, TILE_SIZE + 4, TILE_SIZE + 4, 0)  # 黒縁
             pyxel.rect(screen_x, screen_y, TILE_SIZE, TILE_SIZE, self.COLOR)
+            pyxel.rect(screen_x + TILE_SIZE // 4, screen_y + TILE_SIZE // 4, TILE_SIZE // 2, TILE_SIZE // 2, 7)  # 白
             if self.hp_bar_timer > 0 and self.max_hp > 0:
                 bar_w = TILE_SIZE
                 bar_h = 3
