@@ -149,16 +149,24 @@ class InGameManager:
             # ユニットを縦に並べて描画
             for idx, unit in enumerate(self.unit_list):
                 y = list_top + idx * item_h
+                can_afford = self.funds >= unit.cost
+                # 色設定
+                if can_afford:
+                    name_color = 1 if idx == self.unit_ui_cursor else 0
+                    cost_color = 3
+                    bg_color = 6 if idx == self.unit_ui_cursor else 5
+                else:
+                    name_color = 1
+                    cost_color = 3
+                    bg_color = 13 if idx == self.unit_ui_cursor else 5
                 # 選択中はハイライト
                 if idx == self.unit_ui_cursor:
-                    pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, 6)
+                    pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, bg_color)
                 # ユニット名（上段）
-                FontRenderer.draw_text(
-                    ui_x + 8, y + 2, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0, font_name="default"
-                )
+                FontRenderer.draw_text(ui_x + 8, y + 2, f"{unit.name}", name_color, font_name="default")
                 # コスト（下段、左寄せ）
                 cost_str = f"コスト: {unit.cost}"
-                FontRenderer.draw_text(ui_x + 8, y + 2 + font_h, cost_str, 3, font_name="default")
+                FontRenderer.draw_text(ui_x + 8, y + 2 + font_h, cost_str, cost_color, font_name="default")
 
             # 選択中ユニットの説明（下部に2行まで折り返し表示）
             sel_unit = self.unit_list[self.unit_ui_cursor]
@@ -182,7 +190,7 @@ class InGameManager:
         # 背景（薄いグレー）
         pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)
         # 資金テキスト
-        funds = getattr(self, "funds", 100)
+        funds = self.funds
         funds_text = f"資金: {funds}"
         FontRenderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
 

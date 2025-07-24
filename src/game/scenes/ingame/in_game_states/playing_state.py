@@ -81,14 +81,14 @@ class PlayingState(GameStateProtocol):
             if manager.selected_cell is not None:
                 x, y = manager.selected_cell
                 unit = manager.unit_list[manager.unit_ui_cursor]
-                # 資金が足りる場合のみ配置
+                # 資金が足りる場合のみ配置し、UIを閉じる
                 if manager.funds >= unit.cost:
                     placed = manager.player_unit_manager.place_unit(unit, x, y)
                     if placed:
                         manager.funds -= unit.cost
-                # 足りない場合は何もしない（UIで警告等は今後実装可）
-            manager.is_selecting_unit = False
-            manager.selected_cell = None
+                    manager.is_selecting_unit = False
+                    manager.selected_cell = None
+                # 足りない場合は何もせずUIを閉じない
         elif input_manager.is_triggered(pyxel.KEY_X):
             manager.is_selecting_unit = False
             manager.selected_cell = None
