@@ -9,18 +9,27 @@ from .map import Map
 from .enemy.enemy_manager import EnemyManager
 from .ingame_result import InGameResult
 from ...utils.font_renderer import FontRenderer
+from .constants import TILE_SIZE
 
 
 class Unit:
-    """Class representing a player-placeable unit."""
+    """
+    Class representing a player-placeable unit.
+    Attributes:
+        name (str): ユニット名
+        icon (int): アイコンID
+        cost (int): 配置コスト
+        description (str): ユニット説明
+    """
 
-    def __init__(self, name: str, icon: int, description: str = "") -> None:
+    def __init__(self, name: str, icon: int, cost: int, description: str = "") -> None:
         self.name = name
         self.icon = icon
+        self.cost = cost
         self.description = description
 
     def __repr__(self) -> str:
-        return f"Unit(name={self.name}, icon={self.icon})"
+        return f"Unit(name={self.name}, icon={self.icon}, cost={self.cost})"
 
 
 """
@@ -115,30 +124,53 @@ class InGameManager:
         import pyxel
 
         if self.is_selecting_unit:
-            ui_x = pyxel.width - 60  # 右端から60px幅のUI
-            ui_y = 16
-            ui_w = 56
-            ui_h = 12 + 16 * len(self.unit_list)
+            # --- ユニット選択UIをマップ表示領域の右側に縦並びで描画 ---
+            ui_x = self.camera.view_width * TILE_SIZE  # マップ表示領域の右端
+            ui_y = 0
+            ui_w = game.WINDOW_WIDTH - ui_x  # 画面右端までの幅
+            ui_h = game.WINDOW_HEIGHT  # 画面全体の高さ
             pyxel.rect(ui_x, ui_y, ui_w, ui_h, 5)  # UI背景
-            # FontRenderer.draw_text(21, 18, s, 7, font_name="gothic")
-            # pyxel.text(ui_x + 4, ui_y + 2, "ユニット選択", 7)
-            FontRenderer.draw_text(ui_x + 4, ui_y + 2, "ユニット選択", 7, font_name="default")
+
+            # タイトル（中央寄せ）
+            title_text = "ユニット選択"
+            title_w = len(title_text) * 8
+            title_x = ui_x + (ui_w - title_w) // 2
+            FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
+
+            # ユニットリストの描画設定
+            font_h = 8
+            item_pad = 4  # 各ユニット間の余白
+            item_h = font_h * 2 + item_pad  # 2行分＋余白
+            list_top = ui_y + 16  # タイトル下からリスト開始
+
+            # ユニットを縦に並べて描画
             for idx, unit in enumerate(self.unit_list):
-                y = ui_y + 16 + idx * 16
+                y = list_top + idx * item_h
                 # 選択中はハイライト
                 if idx == self.unit_ui_cursor:
-                    pyxel.rect(ui_x + 2, y - 2, ui_w - 4, 14, 6)
-                # pyxel.text(ui_x + 8, y, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0)
+                    pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, 6)
+                # ユニット名（上段）
                 FontRenderer.draw_text(
-                    ui_x + 8, y + 8, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0, font_name="default"
+                    ui_x + 8, y + 2, f"{unit.name}", 1 if idx == self.unit_ui_cursor else 0, font_name="default"
                 )
-            # 選択中ユニットの説明
+                # コスト（下段、左寄せ）
+                cost_str = f"コスト: {unit.cost}"
+                FontRenderer.draw_text(ui_x + 8, y + 2 + font_h, cost_str, 3, font_name="default")
+
+            # 選択中ユニットの説明（下部に2行まで折り返し表示）
             sel_unit = self.unit_list[self.unit_ui_cursor]
-            # pyxel.text(ui_x + 4, ui_y + ui_h - 12, sel_unit.description, 13)
-            FontRenderer.draw_text(ui_x + 4, ui_y + ui_h - 12, sel_unit.description, 13, font_name="default")
+            desc_y = ui_y + ui_h - 24
+            max_desc_width = ui_w - 8  # 左右余白
+            max_chars_per_line = max_desc_width // 8
+            desc_lines = []
+            desc = sel_unit.description
+            while desc:
+                desc_lines.append(desc[:max_chars_per_line])
+                desc = desc[max_chars_per_line:]
+            for i, line in enumerate(desc_lines[:2]):
+                FontRenderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
 
         # --- Base HP表示 ---
-        # pyxel.text(8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7)
         FontRenderer.draw_text(
             8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7, font_name="default"
         )

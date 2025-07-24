@@ -20,8 +20,12 @@ class Game:
     ゲーム全体のループとシーン管理を担当するクラス。
     """
 
+    # Windowサイズ
+    WINDOW_WIDTH = 160
+    WINDOW_HEIGHT = 120
+
     def __init__(self) -> None:
-        pyxel.init(160, 120)
+        pyxel.init(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
         # フォント登録（必要に応じて複数登録可）
         FontRenderer.register_font("default", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_mincho.bdf")
         FontRenderer.register_font("gothic", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_gothic.bdf")
