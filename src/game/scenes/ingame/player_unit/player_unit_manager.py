@@ -56,7 +56,7 @@ class PlayerUnitManager:
         self.units[(x, y)].level_up()
         return True
 
-    def update(self, enemy_manager: "EnemyManager") -> None:
+    def update(self, enemy_manager: "EnemyManager", ingame_manager=None) -> None:
         """
         全ユニットの攻撃処理・弾の更新を行う。
         """
@@ -78,6 +78,13 @@ class PlayerUnitManager:
                     if dist <= bullet.aoe_radius:
                         enemy.damage(bullet.damage)
                 bullet.hit_pos = None  # 1回だけ処理
+
+        # --- 敵撃破時の資金加算 ---
+        if ingame_manager is not None:
+            for enemy in enemy_manager.enemies:
+                if not enemy.is_alive and not hasattr(enemy, "_reward_given"):
+                    ingame_manager.funds += getattr(enemy, "reward", 5)
+                    setattr(enemy, "_reward_given", True)
 
         self.bullets = [b for b in self.bullets if b.is_active]
 

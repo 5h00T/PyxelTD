@@ -13,7 +13,7 @@ class Enemy(ABC):
     継承先で各メソッドを実装すること。
     """
 
-    def __init__(self, x: float, y: float, speed: float, hp: int, path: list[Tuple[int, int]]) -> None:
+    def __init__(self, x: float, y: float, speed: float, hp: int, path: list[Tuple[int, int]], reward: int = 5) -> None:
         self.x = x
         self.y = y
         self.speed = speed
@@ -23,6 +23,7 @@ class Enemy(ABC):
         self.path_index = 0
         self.is_alive = True  # Falseなら死亡・ゴール到達
         self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
+        self.reward = reward  # 撃破時の資金増加量
 
     def update(self) -> bool:
         """
@@ -91,7 +92,7 @@ class BasicEnemy(Enemy):
     COLOR = 8  # 赤
 
     def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path)
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=5)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -127,7 +128,7 @@ class FastEnemy(Enemy):
     COLOR = 10  # 緑
 
     def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path)
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=8)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -165,7 +166,7 @@ class TankEnemy(Enemy):
     COLOR = 12  # 紫
 
     def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path)
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=15)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel

@@ -80,6 +80,9 @@ class InGameManager:
         self.base_hp: int = 2  # 防衛拠点のHP
         self.max_base_hp = self.base_hp  # 最大HP
 
+        # --- 所持資金 ---
+        self.funds: int = 100  # 初期資金
+
     def update(self, input_manager: "InputManager") -> InGameResult:
         """
         インゲームの状態更新処理。
@@ -169,6 +172,19 @@ class InGameManager:
                 desc = desc[max_chars_per_line:]
             for i, line in enumerate(desc_lines[:2]):
                 FontRenderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
+
+        # --- マップ領域下に資金を表示 ---
+        map_bottom_y = self.camera.view_height * TILE_SIZE
+        ui_x = 0
+        ui_y = map_bottom_y
+        ui_w = self.camera.view_width * TILE_SIZE
+        ui_h = game.WINDOW_HEIGHT - map_bottom_y
+        # 背景（薄いグレー）
+        pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)
+        # 資金テキスト
+        funds = getattr(self, "funds", 100)
+        funds_text = f"資金: {funds}"
+        FontRenderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
 
         # --- Base HP表示 ---
         FontRenderer.draw_text(

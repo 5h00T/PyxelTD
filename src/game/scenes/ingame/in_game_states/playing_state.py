@@ -47,7 +47,7 @@ class PlayingState(GameStateProtocol):
         ステージ進行・プレイヤーユニットの更新を行う。
         """
         manager.stage_manager.update()
-        manager.player_unit_manager.update(manager.enemy_manager)
+        manager.player_unit_manager.update(manager.enemy_manager, ingame_manager=manager)
 
     def _update_enemies(self, manager: "InGameManager", state_manager: "InGameStateManager") -> list[Enemy]:
         """
@@ -81,7 +81,12 @@ class PlayingState(GameStateProtocol):
             if manager.selected_cell is not None:
                 x, y = manager.selected_cell
                 unit = manager.unit_list[manager.unit_ui_cursor]
-                manager.player_unit_manager.place_unit(unit, x, y)
+                # 資金が足りる場合のみ配置
+                if manager.funds >= unit.cost:
+                    placed = manager.player_unit_manager.place_unit(unit, x, y)
+                    if placed:
+                        manager.funds -= unit.cost
+                # 足りない場合は何もしない（UIで警告等は今後実装可）
             manager.is_selecting_unit = False
             manager.selected_cell = None
         elif input_manager.is_triggered(pyxel.KEY_X):
