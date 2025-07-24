@@ -12,7 +12,7 @@ class Bullet:
     """
 
     def __init__(
-        self, x: float, y: float, target: "Enemy", damage: int, speed: float = 2.0, aoe_radius: float = 0.0
+        self, x: float, y: float, target: "Enemy", damage: int, speed: float = 0.5, aoe_radius: float = 0.0
     ) -> None:
         self.x = x
         self.y = y
@@ -21,6 +21,7 @@ class Bullet:
         self.speed = speed
         self.aoe_radius = aoe_radius  # 範囲攻撃半径（0なら単体）
         self.is_active = True
+        self.hit_pos = None  # type: tuple[float, float] | None
 
     def update(self) -> None:
         """
@@ -36,8 +37,8 @@ class Bullet:
         if dist < self.speed or dist == 0:
             # 命中
             if self.aoe_radius > 0:
-                # 範囲攻撃: 範囲内の敵全てにダメージ（後でManager側で処理）
-                pass
+                # 範囲攻撃: 範囲内の敵全てにダメージ（Manager側で処理）
+                self.hit_pos = (self.target.x, self.target.y)
             else:
                 self.target.damage(self.damage)
             self.is_active = False

@@ -65,6 +65,20 @@ class PlayerUnitManager:
         # 弾の更新・消滅処理
         for bullet in self.bullets:
             bullet.update()
+
+        # 範囲攻撃弾の着弾処理
+        for bullet in self.bullets:
+            if bullet.aoe_radius > 0 and bullet.hit_pos is not None:
+                bx, by = bullet.hit_pos
+                for enemy in enemy_manager.enemies:
+                    if not enemy.is_alive:
+                        continue
+                    ex, ey = enemy.x, enemy.y
+                    dist = ((ex - bx) ** 2 + (ey - by) ** 2) ** 0.5
+                    if dist <= bullet.aoe_radius:
+                        enemy.damage(bullet.damage)
+                bullet.hit_pos = None  # 1回だけ処理
+
         self.bullets = [b for b in self.bullets if b.is_active]
 
         # 各ユニットの攻撃判定
@@ -79,7 +93,7 @@ class PlayerUnitManager:
             attack_power = inst.unit.get_attack(inst.level)
             cx, cy = inst.pos
             targets = []
-            for enemy in getattr(enemy_manager, "enemies", []):
+            for enemy in enemy_manager.enemies:
                 if not enemy.is_alive:
                     continue
                 ex, ey = enemy.x, enemy.y
