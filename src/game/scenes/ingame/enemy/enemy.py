@@ -264,7 +264,14 @@ class FlyingEnemy(Enemy):
             cx = screen_x + TILE_SIZE // 2
             cy = screen_y + TILE_SIZE // 2
             if self.is_flying:
-                # 飛行中は青い丸＋羽
+                # --- 影（ディザAPI）描画 ---
+                shadow_radius = 5
+                shadow_cx = cx
+                shadow_cy = cy + 10  # 本体より下
+                pyxel.dither(0.3)
+                pyxel.circ(shadow_cx, shadow_cy, shadow_radius, 0)
+                pyxel.dither(1.0)  # ディザ解除（完全不透明）
+                # --- 本体・羽 ---
                 pyxel.circ(cx, cy, TILE_SIZE // 2, 7)
                 pyxel.circ(cx, cy, TILE_SIZE // 2 - 2, self.COLOR)
                 # 羽（左右に白い線）

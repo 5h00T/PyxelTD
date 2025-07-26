@@ -36,10 +36,33 @@ class PlayingState(GameStateProtocol):
         """
         self._update_stage_and_units(manager)
         self._update_enemies(manager, state_manager)
+        pum = manager.player_unit_manager
+        if pum.is_upgrading_unit:
+            return self._handle_upgrade_ui(manager, input_manager)
         if manager.is_selecting_unit:
             return self._handle_unit_selection_ui(manager, input_manager)
         self._handle_normal_input(manager, input_manager)
         self._update_camera(manager)
+        return StateResult.NONE
+
+    def _handle_upgrade_ui(self, manager: "InGameManager", input_manager: "InputManager") -> StateResult:
+        """
+        強化UIの入力処理。
+        """
+        import pyxel
+
+        pum = manager.player_unit_manager
+        if input_manager.is_triggered(pyxel.KEY_UP) or input_manager.is_triggered(pyxel.KEY_DOWN):
+            pum.upgrade_ui_cursor = 1 - pum.upgrade_ui_cursor  # 0/1トグル
+        elif input_manager.is_triggered(pyxel.KEY_Z):
+            if pum.selected_unit_pos is not None:
+                if pum.upgrade_ui_cursor == 0:
+                    # 強化選択
+                    x, y = pum.selected_unit_pos
+                    pum.level_up_unit(x, y)
+                pum.close_upgrade_ui()
+        elif input_manager.is_triggered(pyxel.KEY_X):
+            pum.close_upgrade_ui()
         return StateResult.NONE
 
     def _update_stage_and_units(self, manager: "InGameManager") -> None:
@@ -96,7 +119,7 @@ class PlayingState(GameStateProtocol):
 
     def _handle_normal_input(self, manager: "InGameManager", input_manager: "InputManager") -> None:
         """
-        通常時のカーソル移動・Zキーによるユニット配置モード遷移を処理する。
+        通常時のカーソル移動・Zキーによるユニット配置/強化UI遷移を処理する。
         """
         import pyxel
 
@@ -109,10 +132,14 @@ class PlayingState(GameStateProtocol):
         elif input_manager.is_triggered(pyxel.KEY_RIGHT):
             manager.cursor.move(1, 0)
 
-        # Zキーでユニット配置モードへ
+        # Zキーでユニット配置 or 強化UIへ
         if input_manager.is_triggered(pyxel.KEY_Z):
             x, y = manager.cursor.get_pos()
-            if manager.can_place_unit_at(x, y):
+            pum = manager.player_unit_manager
+            if (x, y) in pum.units:
+                # 設置済みユニット上なら強化UI
+                pum.open_upgrade_ui((x, y))
+            elif manager.can_place_unit_at(x, y):
                 manager.is_selecting_unit = True
                 manager.selected_cell = (x, y)
                 manager.unit_ui_cursor = 0
@@ -124,7 +151,4 @@ class PlayingState(GameStateProtocol):
         manager.camera.move_to_cursor(*manager.cursor.get_pos())
 
     def draw(self, manager: "InGameManager") -> None:
-        """
-        マップの描写を行う。
-        """
-        # manager.map.draw()
+        pass

@@ -83,6 +83,8 @@ class InGameManager:
         # --- 所持資金 ---
         self.funds: int = 100  # 初期資金
 
+        self.outside_area_color: int = 0  # マップ外の塗りつぶし色
+
     def update(self, input_manager: "InputManager") -> InGameResult:
         """
         インゲームの状態更新処理。
@@ -123,20 +125,25 @@ class InGameManager:
         # --- マップ描画範囲外を塗りつぶす（右・下のみ） ---
         self.mask_outside_map_area()
 
-        # --- ユニット射程リング描画 ---
+        # --- ユニット射程リング・強化UI描画 ---
         import pyxel
 
-        if self.is_selecting_unit and self.selected_cell is not None:
-            # ユニット配置選択中: 選択セル＋選択中ユニット
-            sel_x, sel_y = self.selected_cell
-            unit = self.unit_list[self.unit_ui_cursor]
-            rng = unit.get_range(1)
-            cx = (sel_x - camera_x) * TILE_SIZE + TILE_SIZE // 2
-            cy = (sel_y - camera_y) * TILE_SIZE + TILE_SIZE // 2
+        pum = self.player_unit_manager
+        # 強化選択中
+        if pum.is_upgrading_unit and pum.selected_unit_pos is not None:
+            x, y = pum.selected_unit_pos
+            inst = pum.units[(x, y)]
+            unit = inst.unit
+            level = inst.level
+            next_level = min(level + 1, unit.max_level)
+            cx = (x - camera_x) * TILE_SIZE + TILE_SIZE // 2
+            cy = (y - camera_y) * TILE_SIZE + TILE_SIZE // 2
+            rng = unit.get_range(next_level)
             radius = int(rng * TILE_SIZE)
-            pyxel.circb(cx, cy, radius, 10)
+            pyxel.circb(cx, cy, radius, 13)
+        # ユニット未選択時
         elif not self.is_selecting_unit:
-            # 通常時: カーソルが置いてあるユニット
+            # 通常時: カーソルが置いてあるユニットの射程を表示
             cursor_pos = self.cursor.get_pos()
             unit_inst = self.player_unit_manager.units.get(cursor_pos)
             if unit_inst is not None:
@@ -146,15 +153,50 @@ class InGameManager:
                 radius = int(rng * TILE_SIZE)
                 pyxel.circb(cx, cy, radius, 10)
 
-        # --- ユニット配置UIの描画 ---
-        if self.is_selecting_unit:
+        # --- 右側UI描画 ---
+        if pum.is_upgrading_unit and pum.selected_unit_pos is not None:
+            # 強化UI
+            ui_x = self.camera.view_width * TILE_SIZE
+            ui_y = 0
+            ui_w = game.WINDOW_WIDTH - ui_x
+            ui_h = game.WINDOW_HEIGHT
+            pyxel.rect(ui_x, ui_y, ui_w, ui_h, 1)  # UI背景
+            # タイトル
+            title_text = "ユニット強化"
+            title_w = len(title_text) * 8
+            title_x = ui_x + (ui_w - title_w) // 2
+            FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
+            # 選択肢
+            opt_y = ui_y + 20
+            FontRenderer.draw_text(
+                ui_x + 12, opt_y, "強化", 10 if pum.upgrade_ui_cursor == 0 else 7, font_name="default"
+            )
+            FontRenderer.draw_text(
+                ui_x + 12, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
+            )
+            # ユニット情報
+            x, y = pum.selected_unit_pos
+            inst = pum.units[(x, y)]
+            unit = inst.unit
+            level = inst.level
+            FontRenderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
+            FontRenderer.draw_text(ui_x + 8, opt_y + 48, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
+            FontRenderer.draw_text(ui_x + 8, opt_y + 60, f"射程: {unit.get_range(level)}", 7, font_name="default")
+            if level < unit.max_level:
+                FontRenderer.draw_text(
+                    ui_x + 8,
+                    opt_y + 72,
+                    f"→ Lv{level+1} 攻:{unit.get_attack(level+1)} 射:{unit.get_range(level+1)}",
+                    13,
+                    font_name="default",
+                )
+        elif self.is_selecting_unit:
             # --- ユニット選択UIをマップ表示領域の右側に縦並びで描画 ---
             ui_x = self.camera.view_width * TILE_SIZE  # マップ表示領域の右端
             ui_y = 0
             ui_w = game.WINDOW_WIDTH - ui_x  # 画面右端までの幅
             ui_h = game.WINDOW_HEIGHT  # 画面全体の高さ
             pyxel.rect(ui_x, ui_y, ui_w, ui_h, 5)  # UI背景
-
             # タイトル（中央寄せ）
             title_text = "ユニット選択"
             title_w = len(title_text) * 8
@@ -258,11 +300,10 @@ class InGameManager:
 
         map_screen_w = VIEW_TILE_WIDTH * TILE_SIZE
         map_screen_h = VIEW_TILE_HEIGHT * TILE_SIZE
-        mask_color = 0  # 黒で塗りつぶし
 
         # 右側の余白
         if map_screen_w < pyxel.width:
-            pyxel.rect(map_screen_w, 0, pyxel.width - map_screen_w, pyxel.height, mask_color)
+            pyxel.rect(map_screen_w, 0, pyxel.width - map_screen_w, pyxel.height, self.outside_area_color)
         # 下側の余白
         if map_screen_h < pyxel.height:
-            pyxel.rect(0, map_screen_h, pyxel.width, pyxel.height - map_screen_h, mask_color)
+            pyxel.rect(0, map_screen_h, pyxel.width, pyxel.height - map_screen_h, self.outside_area_color)

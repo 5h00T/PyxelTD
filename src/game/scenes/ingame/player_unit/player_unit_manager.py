@@ -5,6 +5,7 @@ PlayerUnitManager - プレイヤーユニットの配置・管理・攻撃処理
 from typing import Dict, Tuple
 from .player_unit import PlayerUnit
 from ..enemy.enemy_manager import EnemyManager
+from ..ingame_manager import InGameManager
 
 
 class PlayerUnitInstance:
@@ -36,6 +37,28 @@ class PlayerUnitManager:
 
         self.bullets: list[Bullet] = []
 
+        # --- 強化UI状態管理 ---
+        self.is_upgrading_unit: bool = False  # 強化UI表示中か
+        self.upgrade_ui_cursor: int = 0  # 0:強化 1:キャンセル
+        self.selected_unit_pos: tuple[int, int] | None = None  # 強化対象ユニット座標
+
+    def open_upgrade_ui(self, pos: tuple[int, int]) -> None:
+        """
+        指定座標のユニットの強化UIを開く。
+        """
+        if pos in self.units:
+            self.is_upgrading_unit = True
+            self.upgrade_ui_cursor = 0
+            self.selected_unit_pos = pos
+
+    def close_upgrade_ui(self) -> None:
+        """
+        強化UIを閉じる。
+        """
+        self.is_upgrading_unit = False
+        self.upgrade_ui_cursor = 0
+        self.selected_unit_pos = None
+
     def place_unit(self, unit: PlayerUnit, x: int, y: int) -> bool:
         """
         指定座標にユニットを配置。
@@ -56,7 +79,7 @@ class PlayerUnitManager:
         self.units[(x, y)].level_up()
         return True
 
-    def update(self, enemy_manager: "EnemyManager", ingame_manager=None) -> None:
+    def update(self, enemy_manager: "EnemyManager", ingame_manager: "InGameManager") -> None:
         """
         全ユニットの攻撃処理・弾の更新を行う。
         """
