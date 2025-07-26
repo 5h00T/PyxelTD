@@ -107,7 +107,6 @@ class InGameManager:
         カメラ・カーソルを考慮して描画。
         """
 
-        # TODO: ゲーム画面の背景表示
         def draw_background() -> None:
             import pyxel
 
@@ -118,19 +117,20 @@ class InGameManager:
         camera_x, camera_y = self.camera.get_pos()
         # マップ描画（カメラ範囲のみ）
         self.map.draw(camera_x, camera_y, self.camera.view_width, self.camera.view_height)
-        # --- ユニット描画 ---
+        # プレイヤーユニットの描画
         self.player_unit_manager.draw(camera_x, camera_y)
-        self.enemy_manager.draw(camera_x, camera_y)  # エネミーの描画
+        # エネミーの描画
+        self.enemy_manager.draw(camera_x, camera_y)
 
-        # --- マップ描画範囲外を塗りつぶす（右・下のみ） ---
+        # マップ描画範囲外を塗りつぶす
         self.mask_outside_map_area()
 
-        # --- ユニット射程リング・強化UI描画 ---
         import pyxel
 
         pum = self.player_unit_manager
         # 強化選択中
         if pum.is_upgrading_unit and pum.selected_unit_pos is not None:
+            # 強化後のユニットの射程を表示
             x, y = pum.selected_unit_pos
             inst = pum.units[(x, y)]
             unit = inst.unit
@@ -141,9 +141,9 @@ class InGameManager:
             rng = unit.get_range(next_level)
             radius = int(rng * TILE_SIZE)
             pyxel.circb(cx, cy, radius, 13)
-        # ユニット未選択時
+        # 強化選択中ではないかつユニット未選択時
         elif not self.is_selecting_unit:
-            # 通常時: カーソルが置いてあるユニットの射程を表示
+            # カーソルが置いてあるユニットの射程を表示
             cursor_pos = self.cursor.get_pos()
             unit_inst = self.player_unit_manager.units.get(cursor_pos)
             if unit_inst is not None:
@@ -153,9 +153,9 @@ class InGameManager:
                 radius = int(rng * TILE_SIZE)
                 pyxel.circb(cx, cy, radius, 10)
 
-        # --- 右側UI描画 ---
+        # 強化選択中
         if pum.is_upgrading_unit and pum.selected_unit_pos is not None:
-            # 強化UI
+            # 右側UI描画
             ui_x = self.camera.view_width * TILE_SIZE
             ui_y = 0
             ui_w = game.WINDOW_WIDTH - ui_x
@@ -169,10 +169,10 @@ class InGameManager:
             # 選択肢
             opt_y = ui_y + 20
             FontRenderer.draw_text(
-                ui_x + 12, opt_y, "強化", 10 if pum.upgrade_ui_cursor == 0 else 7, font_name="default"
+                ui_x + 4, opt_y, "強化", 10 if pum.upgrade_ui_cursor == 0 else 7, font_name="default"
             )
             FontRenderer.draw_text(
-                ui_x + 12, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
+                ui_x + 4, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
             )
             # ユニット情報
             x, y = pum.selected_unit_pos
@@ -180,18 +180,14 @@ class InGameManager:
             unit = inst.unit
             level = inst.level
             FontRenderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
-            FontRenderer.draw_text(ui_x + 8, opt_y + 48, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
-            FontRenderer.draw_text(ui_x + 8, opt_y + 60, f"射程: {unit.get_range(level)}", 7, font_name="default")
+            FontRenderer.draw_text(ui_x + 8, opt_y + 46, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
+            FontRenderer.draw_text(ui_x + 8, opt_y + 56, f"射程: {unit.get_range(level)}", 7, font_name="default")
             if level < unit.max_level:
-                FontRenderer.draw_text(
-                    ui_x + 8,
-                    opt_y + 72,
-                    f"→ Lv{level+1} 攻:{unit.get_attack(level+1)} 射:{unit.get_range(level+1)}",
-                    13,
-                    font_name="default",
-                )
+                FontRenderer.draw_text(ui_x + 8, opt_y + 70, f"→ Lv: {level+1}", 13, font_name="default")
+                FontRenderer.draw_text(ui_x + 8, opt_y + 80, f"攻:{unit.get_attack(level+1)}", 13, font_name="default")
+                FontRenderer.draw_text(ui_x + 8, opt_y + 90, f"射:{unit.get_range(level+1)}", 13, font_name="default")
         elif self.is_selecting_unit:
-            # --- ユニット選択UIをマップ表示領域の右側に縦並びで描画 ---
+            # ユニット選択UIをマップ表示領域の右側に縦並びで描画
             ui_x = self.camera.view_width * TILE_SIZE  # マップ表示領域の右端
             ui_y = 0
             ui_w = game.WINDOW_WIDTH - ui_x  # 画面右端までの幅
