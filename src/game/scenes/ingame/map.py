@@ -172,6 +172,65 @@ class Map:
         path.reverse()
         return path
 
+    def get_path(self, start: tuple[int, int], goal: tuple[int, int]) -> list[tuple[int, int]]:
+        """
+        指定した開始位置からゴールまでの最短経路を抽出。
+        Args:
+            start (tuple[int, int]): 開始位置のタイル座標
+            goal (tuple[int, int]): ゴール位置のタイル座標
+        Returns:
+            list[tuple[int, int]]: 経路となるタイル座標リスト
+        """
+        TILE_PATH = 0
+        TILE_GOAL = 3
+        height = self.height
+        width = self.width
+        if not (0 <= start[0] < width and 0 <= start[1] < height):
+            return []
+        if not (0 <= goal[0] < width and 0 <= goal[1] < height):
+            return []
+        if self.data[start[1]][start[0]] != TILE_PATH:
+            return []
+        if self.data[goal[1]][goal[0]] != TILE_GOAL:
+            return []
+        # 経路探索（幅優先探索でTILE_PATHとTILE_GOALを辿る）
+        from collections import deque
+        from typing import Optional, Tuple
+
+        visited = [[False] * width for _ in range(height)]
+        prev: list[list[Optional[Tuple[int, int]]]] = [[None for _ in range(width)] for _ in range(height)]
+        queue: deque[Tuple[int, int]] = deque()
+        sx, sy = start
+        queue.append((sx, sy))
+        visited[sy][sx] = True
+        while queue:
+            x, y = queue.popleft()
+            if (x, y) == goal:
+                break
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < width and 0 <= ny < height:
+                    if not visited[ny][nx] and (self.data[ny][nx] == TILE_PATH or self.data[ny][nx] == TILE_GOAL):
+                        visited[ny][nx] = True
+                        prev[ny][nx] = (x, y)
+                        queue.append((nx, ny))
+        # ゴールまでの経路を復元
+        path = []
+        x, y = goal
+        while (x, y) != start:
+            path.append((x, y))
+            if prev[y][x] is None:
+                # 経路が途切れている場合
+                return []
+            # 安全にアンパック
+            next_pos = prev[y][x]
+            if next_pos is None:
+                return []
+            x, y = next_pos
+        path.append(start)
+        path.reverse()
+        return path
+
     """
     マップタイル管理クラス。
     2次元リストでマップデータを保持。

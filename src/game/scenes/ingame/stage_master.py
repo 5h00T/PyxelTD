@@ -46,6 +46,7 @@ SAMPLE_STAGE_MASTER = StageMasterData(
                 EnemySpawnData(time=60, enemy_type="BasicEnemy", path_id=0),
                 EnemySpawnData(time=120, enemy_type="FastEnemy", path_id=0),
                 EnemySpawnData(time=180, enemy_type="TankEnemy", path_id=0),
+                EnemySpawnData(time=210, enemy_type="FlyingEnemy", path_id=0),  # 飛行エネミー追加
                 EnemySpawnData(time=240, enemy_type="BasicEnemy", path_id=0),
                 EnemySpawnData(time=300, enemy_type="FastEnemy", path_id=0),
                 EnemySpawnData(time=360, enemy_type="TankEnemy", path_id=0),

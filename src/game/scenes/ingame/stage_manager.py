@@ -8,6 +8,8 @@ from .enemy.enemy import BasicEnemy
 from .enemy.enemy import Enemy
 from .enemy.enemy import FastEnemy
 from .enemy.enemy import TankEnemy
+from .enemy.enemy import FlyingEnemy
+from .map import Map
 
 
 class StageManager:
@@ -16,9 +18,10 @@ class StageManager:
     経過フレームを管理し、マスターデータに従いエネミーを出現させる。
     """
 
-    def __init__(self, stage_master: StageMasterData, enemy_manager: EnemyManager):
+    def __init__(self, stage_master: StageMasterData, enemy_manager: EnemyManager, map: Map) -> None:
         self.stage_master = stage_master
         self.enemy_manager = enemy_manager
+        self.map = map
         self.frame = 0
         self.wave_index = 0
         self.spawned_flags: set[tuple[int, int]] = set()  # (wave, spawn_idx)のタプル
@@ -56,6 +59,14 @@ class StageManager:
             enemy = FastEnemy(x=path[0][0], y=path[0][1], path=path)
         elif spawn.enemy_type == TankEnemy.__name__:
             enemy = TankEnemy(x=path[0][0], y=path[0][1], path=path)
+        elif spawn.enemy_type == FlyingEnemy.__name__:
+            # マップ外(-2, y)からpath[0]へ飛行し、着地後は道を進む
+            print(f"Spawning FlyingEnemy at {path}")
+            # TODO: 着地位置はマスターデータから取得する
+            # TODO: 生成位置はマスターデータから取得する
+            enemy = FlyingEnemy(
+                start_x=-2, start_y=path[0][1], land_pos=(13, 6), path=self.map.get_path((13, 6), path[-1])
+            )
         else:
             # 未知の敵種はBasicEnemyで代用
             enemy = BasicEnemy(x=path[0][0], y=path[0][1], path=path)

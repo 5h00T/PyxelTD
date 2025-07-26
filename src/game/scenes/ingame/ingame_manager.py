@@ -56,7 +56,7 @@ class InGameManager:
 
         # マップ生成後にパスをセット
         SAMPLE_STAGE_MASTER.paths = self.map.get_all_paths_from_entrances_to_goal()
-        self.stage_manager = StageManager(SAMPLE_STAGE_MASTER, self.enemy_manager)
+        self.stage_manager = StageManager(SAMPLE_STAGE_MASTER, self.enemy_manager, self.map)
         self.state_manager = InGameStateManager(self.enemy_manager)
         from .cursor import Cursor
         from .camera import Camera
