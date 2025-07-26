@@ -201,6 +201,13 @@ class InGameManager:
                 desc = desc[max_chars_per_line:]
             for i, line in enumerate(desc_lines[:2]):
                 FontRenderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
+        else:
+            # 背景を描画
+            ui_x = self.camera.view_width * TILE_SIZE
+            ui_y = 0
+            ui_w = game.WINDOW_WIDTH - ui_x
+            ui_h = game.WINDOW_HEIGHT
+            pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)  # UI背景
 
         # --- マップ領域下に資金を表示 ---
         map_bottom_y = self.camera.view_height * TILE_SIZE
