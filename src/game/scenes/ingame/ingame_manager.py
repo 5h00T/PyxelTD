@@ -123,9 +123,30 @@ class InGameManager:
         # --- マップ描画範囲外を塗りつぶす（右・下のみ） ---
         self.mask_outside_map_area()
 
-        # --- ユニット配置UIの描画 ---
+        # --- ユニット射程リング描画 ---
         import pyxel
 
+        if self.is_selecting_unit and self.selected_cell is not None:
+            # ユニット配置選択中: 選択セル＋選択中ユニット
+            sel_x, sel_y = self.selected_cell
+            unit = self.unit_list[self.unit_ui_cursor]
+            rng = unit.get_range(1)
+            cx = (sel_x - camera_x) * TILE_SIZE + TILE_SIZE // 2
+            cy = (sel_y - camera_y) * TILE_SIZE + TILE_SIZE // 2
+            radius = int(rng * TILE_SIZE)
+            pyxel.circb(cx, cy, radius, 10)
+        elif not self.is_selecting_unit:
+            # 通常時: カーソルが置いてあるユニット
+            cursor_pos = self.cursor.get_pos()
+            unit_inst = self.player_unit_manager.units.get(cursor_pos)
+            if unit_inst is not None:
+                rng = unit_inst.unit.get_range(unit_inst.level)
+                cx = (cursor_pos[0] - camera_x) * TILE_SIZE + TILE_SIZE // 2
+                cy = (cursor_pos[1] - camera_y) * TILE_SIZE + TILE_SIZE // 2
+                radius = int(rng * TILE_SIZE)
+                pyxel.circb(cx, cy, radius, 10)
+
+        # --- ユニット配置UIの描画 ---
         if self.is_selecting_unit:
             # --- ユニット選択UIをマップ表示領域の右側に縦並びで描画 ---
             ui_x = self.camera.view_width * TILE_SIZE  # マップ表示領域の右端
