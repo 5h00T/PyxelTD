@@ -41,6 +41,7 @@ class Game:
                 pyxel.KEY_P,
                 pyxel.KEY_Q,
                 pyxel.KEY_Z,
+                pyxel.KEY_X,
                 pyxel.KEY_R,
             ]
         )
