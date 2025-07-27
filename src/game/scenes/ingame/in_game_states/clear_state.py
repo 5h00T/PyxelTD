@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
 from .state_result import StateResult
+from ....utils.font_renderer import FontRenderer
 
 
 class ClearState(GameStateProtocol):
@@ -35,9 +36,7 @@ class ClearState(GameStateProtocol):
         import pyxel
 
         result = StateResult.NONE
-        if input_manager.is_triggered(pyxel.KEY_R):
-            result = StateResult.RETRY
-        elif input_manager.is_triggered(pyxel.KEY_Q):
+        if input_manager.is_triggered(pyxel.KEY_Q):
             result = StateResult.STAGE_SELECT
 
         return result
@@ -46,8 +45,5 @@ class ClearState(GameStateProtocol):
         """
         ゲームクリア画面の描画。
         """
-        import pyxel
-
-        manager.map.draw()
-        pyxel.text(60, 40, "GAME CLEAR", 10)
-        pyxel.text(40, 60, "R: Retry   Q: Menu", 7)
+        FontRenderer.draw_text(60, 40, "GAME CLEAR", 15, font_name="default")
+        FontRenderer.draw_text(60, 60, "Q: Menu", 15, font_name="default")

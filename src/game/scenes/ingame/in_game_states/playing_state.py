@@ -45,12 +45,16 @@ class PlayingState(GameStateProtocol):
         if is_all_wave_complete:
             state_manager.change_state(state_manager.clear_state)
         self._update_enemies(manager, state_manager)
+
+        # 選択中の場合
         pum = manager.player_unit_manager
         if pum.is_upgrading_unit:
             return self._handle_upgrade_ui(manager, input_manager)
         if manager.is_selecting_unit:
             return self._handle_unit_selection_ui(manager, input_manager)
+
         self._handle_normal_input(manager, input_manager)
+
         self._update_camera(manager)
         return StateResult.NONE
 
