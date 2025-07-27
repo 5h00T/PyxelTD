@@ -43,15 +43,14 @@ SAMPLE_STAGE_MASTER = StageMasterData(
     waves=[
         StageWaveData(
             [
-                EnemySpawnData(time=60, enemy_type="BasicEnemy", path_id=0),
-                EnemySpawnData(time=120, enemy_type="FastEnemy", path_id=0),
-                EnemySpawnData(time=180, enemy_type="TankEnemy", path_id=0),
-                EnemySpawnData(time=210, enemy_type="FlyingEnemy", path_id=0),  # 飛行エネミー追加
-                EnemySpawnData(time=240, enemy_type="BasicEnemy", path_id=0),
-                EnemySpawnData(time=300, enemy_type="FastEnemy", path_id=0),
-                EnemySpawnData(time=360, enemy_type="TankEnemy", path_id=0),
-                EnemySpawnData(time=420, enemy_type="BasicEnemy", path_id=0),
-                EnemySpawnData(time=480, enemy_type="FastEnemy", path_id=0),
+                # 5体のBasicEnemyを0,60,120,180,240フレームで出現
+                *[EnemySpawnData(time=i * 60, enemy_type="BasicEnemy", path_id=0) for i in range(5)],
+                # 3体のFastEnemyを600,660,720フレームで出現
+                *[EnemySpawnData(time=600 + i * 60, enemy_type="FastEnemy", path_id=1) for i in range(5)],
+                # 2体のTankEnemyを1200,1260フレームで出現
+                *[EnemySpawnData(time=1200 + i * 60, enemy_type="TankEnemy", path_id=0) for i in range(5)],
+                # 1体のFlyingEnemyを1800フレームで出現
+                *[EnemySpawnData(time=1800 + i * 60, enemy_type="FlyingEnemy", path_id=0) for i in range(5)],
             ]
         ),
         StageWaveData(

@@ -106,31 +106,30 @@ class InGameManager:
         インゲームの描画処理。
         カメラ・カーソルを考慮して描画。
         """
-
-        def draw_background() -> None:
-            import pyxel
-
-            pyxel.cls(0)
-
-        draw_background()
-
+        self.draw_background()
         camera_x, camera_y = self.camera.get_pos()
-        # マップ描画（カメラ範囲のみ）
+        self.draw_map_and_objects(camera_x, camera_y)
+        self.mask_outside_map_area()
+        self.draw_range_ring(camera_x, camera_y)
+        self.draw_right_ui(game, camera_x, camera_y)
+        self.draw_bottom_ui(game)
+        self.draw_cursor(camera_x, camera_y)
+
+    def draw_background(self) -> None:
+        import pyxel
+
+        pyxel.cls(0)
+
+    def draw_map_and_objects(self, camera_x: int, camera_y: int) -> None:
         self.map.draw(camera_x, camera_y, self.camera.view_width, self.camera.view_height)
-        # プレイヤーユニットの描画
         self.player_unit_manager.draw(camera_x, camera_y)
-        # エネミーの描画
         self.enemy_manager.draw(camera_x, camera_y)
 
-        # マップ描画範囲外を塗りつぶす
-        self.mask_outside_map_area()
-
+    def draw_range_ring(self, camera_x: int, camera_y: int) -> None:
         import pyxel
 
         pum = self.player_unit_manager
-        # 強化選択中
         if pum.is_upgrading_unit and pum.selected_unit_pos is not None:
-            # 強化後のユニットの射程を表示
             x, y = pum.selected_unit_pos
             inst = pum.units[(x, y)]
             unit = inst.unit
@@ -141,9 +140,7 @@ class InGameManager:
             rng = unit.get_range(next_level)
             radius = int(rng * TILE_SIZE)
             pyxel.circb(cx, cy, radius, 13)
-        # 強化選択中ではないかつユニット未選択時
         elif not self.is_selecting_unit:
-            # カーソルが置いてあるユニットの射程を表示
             cursor_pos = self.cursor.get_pos()
             unit_inst = self.player_unit_manager.units.get(cursor_pos)
             if unit_inst is not None:
@@ -153,121 +150,115 @@ class InGameManager:
                 radius = int(rng * TILE_SIZE)
                 pyxel.circb(cx, cy, radius, 10)
 
-        # 強化選択中
+    def draw_right_ui(self, game: "Game", camera_x: int, camera_y: int) -> None:
+        pum = self.player_unit_manager
         if pum.is_upgrading_unit and pum.selected_unit_pos is not None:
-            # 右側UI描画
-            ui_x = self.camera.view_width * TILE_SIZE
-            ui_y = 0
-            ui_w = game.WINDOW_WIDTH - ui_x
-            ui_h = game.WINDOW_HEIGHT
-            pyxel.rect(ui_x, ui_y, ui_w, ui_h, 1)  # UI背景
-            # タイトル
-            title_text = "ユニット強化"
-            title_w = len(title_text) * 8
-            title_x = ui_x + (ui_w - title_w) // 2
-            FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
-            # 選択肢
-            opt_y = ui_y + 20
-            FontRenderer.draw_text(
-                ui_x + 4, opt_y, "強化", 10 if pum.upgrade_ui_cursor == 0 else 7, font_name="default"
-            )
-            FontRenderer.draw_text(
-                ui_x + 4, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
-            )
-            # ユニット情報
-            x, y = pum.selected_unit_pos
-            inst = pum.units[(x, y)]
-            unit = inst.unit
-            level = inst.level
-            FontRenderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
-            FontRenderer.draw_text(ui_x + 8, opt_y + 46, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
-            FontRenderer.draw_text(ui_x + 8, opt_y + 56, f"射程: {unit.get_range(level)}", 7, font_name="default")
-            if level < unit.max_level:
-                FontRenderer.draw_text(ui_x + 8, opt_y + 70, f"→ Lv: {level+1}", 13, font_name="default")
-                FontRenderer.draw_text(ui_x + 8, opt_y + 80, f"攻:{unit.get_attack(level+1)}", 13, font_name="default")
-                FontRenderer.draw_text(ui_x + 8, opt_y + 90, f"射:{unit.get_range(level+1)}", 13, font_name="default")
+            self._draw_upgrade_ui(game, pum)
         elif self.is_selecting_unit:
-            # ユニット選択UIをマップ表示領域の右側に縦並びで描画
-            ui_x = self.camera.view_width * TILE_SIZE  # マップ表示領域の右端
-            ui_y = 0
-            ui_w = game.WINDOW_WIDTH - ui_x  # 画面右端までの幅
-            ui_h = game.WINDOW_HEIGHT  # 画面全体の高さ
-            pyxel.rect(ui_x, ui_y, ui_w, ui_h, 5)  # UI背景
-            # タイトル（中央寄せ）
-            title_text = "ユニット選択"
-            title_w = len(title_text) * 8
-            title_x = ui_x + (ui_w - title_w) // 2
-            FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
-
-            # ユニットリストの描画設定
-            font_h = 8
-            item_pad = 4  # 各ユニット間の余白
-            item_h = font_h * 2 + item_pad  # 2行分＋余白
-            list_top = ui_y + 16  # タイトル下からリスト開始
-
-            # ユニットを縦に並べて描画
-            for idx, unit in enumerate(self.unit_list):
-                y = list_top + idx * item_h
-                can_afford = self.funds >= unit.cost
-                # 色設定
-                if can_afford:
-                    name_color = 1 if idx == self.unit_ui_cursor else 0
-                    cost_color = 3
-                    bg_color = 6 if idx == self.unit_ui_cursor else 5
-                else:
-                    name_color = 1
-                    cost_color = 3
-                    bg_color = 13 if idx == self.unit_ui_cursor else 5
-                # 選択中はハイライト
-                if idx == self.unit_ui_cursor:
-                    pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, bg_color)
-                # ユニット名（上段）
-                FontRenderer.draw_text(ui_x + 8, y + 2, f"{unit.name}", name_color, font_name="default")
-                # コスト（下段、左寄せ）
-                cost_str = f"コスト: {unit.cost}"
-                FontRenderer.draw_text(ui_x + 8, y + 2 + font_h, cost_str, cost_color, font_name="default")
-
-            # 選択中ユニットの説明（下部に2行まで折り返し表示）
-            sel_unit = self.unit_list[self.unit_ui_cursor]
-            desc_y = ui_y + ui_h - 24
-            max_desc_width = ui_w - 8  # 左右余白
-            max_chars_per_line = max_desc_width // 8
-            desc_lines = []
-            desc = sel_unit.description
-            while desc:
-                desc_lines.append(desc[:max_chars_per_line])
-                desc = desc[max_chars_per_line:]
-            for i, line in enumerate(desc_lines[:2]):
-                FontRenderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
+            self._draw_unit_select_ui(game)
         else:
-            # 背景を描画
-            ui_x = self.camera.view_width * TILE_SIZE
-            ui_y = 0
-            ui_w = game.WINDOW_WIDTH - ui_x
-            ui_h = game.WINDOW_HEIGHT
-            pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)  # UI背景
+            self._draw_default_right_ui(game)
 
-        # --- マップ領域下に資金を表示 ---
+    def _draw_upgrade_ui(self, game: "Game", pum) -> None:
+        import pyxel
+
+        ui_x = self.camera.view_width * TILE_SIZE
+        ui_y = 0
+        ui_w = game.WINDOW_WIDTH - ui_x
+        ui_h = game.WINDOW_HEIGHT
+        pyxel.rect(ui_x, ui_y, ui_w, ui_h, 1)
+        title_text = "ユニット強化"
+        title_w = len(title_text) * 8
+        title_x = ui_x + (ui_w - title_w) // 2
+        FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
+        opt_y = ui_y + 20
+        FontRenderer.draw_text(ui_x + 4, opt_y, "強化", 10 if pum.upgrade_ui_cursor == 0 else 7, font_name="default")
+        FontRenderer.draw_text(
+            ui_x + 4, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
+        )
+        x, y = pum.selected_unit_pos
+        inst = pum.units[(x, y)]
+        unit = inst.unit
+        level = inst.level
+        FontRenderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
+        FontRenderer.draw_text(ui_x + 8, opt_y + 46, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
+        FontRenderer.draw_text(ui_x + 8, opt_y + 56, f"射程: {unit.get_range(level)}", 7, font_name="default")
+        if level < unit.max_level:
+            FontRenderer.draw_text(ui_x + 8, opt_y + 70, f"→ Lv: {level+1}", 13, font_name="default")
+            FontRenderer.draw_text(ui_x + 8, opt_y + 80, f"攻:{unit.get_attack(level+1)}", 13, font_name="default")
+            FontRenderer.draw_text(ui_x + 8, opt_y + 90, f"射:{unit.get_range(level+1)}", 13, font_name="default")
+
+    def _draw_unit_select_ui(self, game: "Game") -> None:
+        import pyxel
+
+        ui_x = self.camera.view_width * TILE_SIZE
+        ui_y = 0
+        ui_w = game.WINDOW_WIDTH - ui_x
+        ui_h = game.WINDOW_HEIGHT
+        pyxel.rect(ui_x, ui_y, ui_w, ui_h, 5)
+        title_text = "ユニット選択"
+        title_w = len(title_text) * 8
+        title_x = ui_x + (ui_w - title_w) // 2
+        FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
+        font_h = 8
+        item_pad = 4
+        item_h = font_h * 2 + item_pad
+        list_top = ui_y + 16
+        for idx, unit in enumerate(self.unit_list):
+            y = list_top + idx * item_h
+            can_afford = self.funds >= unit.cost
+            if can_afford:
+                name_color = 1 if idx == self.unit_ui_cursor else 0
+                cost_color = 3
+                bg_color = 6 if idx == self.unit_ui_cursor else 5
+            else:
+                name_color = 1
+                cost_color = 3
+                bg_color = 13 if idx == self.unit_ui_cursor else 5
+            if idx == self.unit_ui_cursor:
+                pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, bg_color)
+            FontRenderer.draw_text(ui_x + 8, y + 2, f"{unit.name}", name_color, font_name="default")
+            cost_str = f"コスト: {unit.cost}"
+            FontRenderer.draw_text(ui_x + 8, y + 2 + font_h, cost_str, cost_color, font_name="default")
+        sel_unit = self.unit_list[self.unit_ui_cursor]
+        desc_y = ui_y + ui_h - 24
+        max_desc_width = ui_w - 8
+        max_chars_per_line = max_desc_width // 8
+        desc_lines = []
+        desc = sel_unit.description
+        while desc:
+            desc_lines.append(desc[:max_chars_per_line])
+            desc = desc[max_chars_per_line:]
+        for i, line in enumerate(desc_lines[:2]):
+            FontRenderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
+
+    def _draw_default_right_ui(self, game: "Game") -> None:
+        import pyxel
+
+        ui_x = self.camera.view_width * TILE_SIZE
+        ui_y = 0
+        ui_w = game.WINDOW_WIDTH - ui_x
+        ui_h = game.WINDOW_HEIGHT
+        pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)
+
+    def draw_bottom_ui(self, game: "Game") -> None:
+        import pyxel
+
         map_bottom_y = self.camera.view_height * TILE_SIZE
         ui_x = 0
         ui_y = map_bottom_y
         ui_w = self.camera.view_width * TILE_SIZE
         ui_h = game.WINDOW_HEIGHT - map_bottom_y
-        # 背景（薄いグレー）
         pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)
-        # 資金テキスト
         funds = self.funds
         funds_text = f"資金: {funds}"
         FontRenderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
-
-        # --- Base HP表示 ---
         FontRenderer.draw_text(
             8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7, font_name="default"
         )
 
-        # カーソルは上に描画
+    def draw_cursor(self, camera_x: int, camera_y: int) -> None:
         self.cursor.draw(camera_x, camera_y)
-        # self.state_manager.draw(self)
 
     def can_place_unit_at(self, x: int, y: int) -> bool:
         """
