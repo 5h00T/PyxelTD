@@ -62,13 +62,25 @@ class PlayingState(GameStateProtocol):
 
         pum = manager.player_unit_manager
         if input_manager.is_triggered(pyxel.KEY_UP) or input_manager.is_triggered(pyxel.KEY_DOWN):
-            pum.upgrade_ui_cursor = 1 - pum.upgrade_ui_cursor  # 0/1トグル
+            # コストが足りない場合は移動しない
+            if pum.selected_unit_pos is not None:
+                x, y = pum.selected_unit_pos
+                unit = pum.units[(x, y)].unit
+                next_cost = unit.get_upgrade_cost(pum.units[(x, y)].level)
+            if next_cost <= manager.funds:
+                # 強化UIのカーソルをトグル
+                pum.upgrade_ui_cursor = 1 - pum.upgrade_ui_cursor
         elif input_manager.is_triggered(pyxel.KEY_Z):
             if pum.selected_unit_pos is not None:
                 if pum.upgrade_ui_cursor == 0:
                     # 強化選択
                     x, y = pum.selected_unit_pos
                     pum.level_up_unit(x, y)
+                    # コスト消費
+                    unit = pum.units[(x, y)].unit
+                    next_cost = unit.get_upgrade_cost(pum.units[(x, y)].level)
+                    if next_cost > 0 and manager.funds >= next_cost:
+                        manager.funds -= next_cost
                 pum.close_upgrade_ui()
         elif input_manager.is_triggered(pyxel.KEY_X):
             pum.close_upgrade_ui()

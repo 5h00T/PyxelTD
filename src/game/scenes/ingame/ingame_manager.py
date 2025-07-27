@@ -172,11 +172,9 @@ class InGameManager:
         title_w = len(title_text) * 8
         title_x = ui_x + (ui_w - title_w) // 2
         FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
-        opt_y = ui_y + 20
-        FontRenderer.draw_text(ui_x + 4, opt_y, "強化", 10 if pum.upgrade_ui_cursor == 0 else 7, font_name="default")
-        FontRenderer.draw_text(
-            ui_x + 4, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
-        )
+        opt_y = ui_y + 16
+
+        # 強化コスト・資金チェック
         if pum.selected_unit_pos is None:
             x, y = (-1, -1)
         else:
@@ -184,6 +182,25 @@ class InGameManager:
         inst = pum.units[(x, y)]
         unit = inst.unit
         level = inst.level
+        next_cost = unit.get_upgrade_cost(level)
+        can_upgrade = (next_cost > 0) and (self.funds >= next_cost) and (level < unit.max_level)
+
+        # 強化ボタン色: 押せる=10, 押せない=5
+        upgrade_color = 10 if can_upgrade and pum.upgrade_ui_cursor == 0 else (7 if can_upgrade else 5)
+        FontRenderer.draw_text(ui_x + 4, opt_y, "強化", upgrade_color, font_name="default")
+        # コスト表示
+        if level < unit.max_level:
+            cost_str = f"コスト:{next_cost}"
+            cost_color = 3 if can_upgrade else 8
+            FontRenderer.draw_text(ui_x + 4, opt_y + 14, cost_str, cost_color, font_name="default")
+        else:
+            FontRenderer.draw_text(ui_x + 4, opt_y + 14, "最大レベル", 8, font_name="default")
+
+        # キャンセルボタン
+        FontRenderer.draw_text(
+            ui_x + 4, opt_y + 24, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
+        )
+
         FontRenderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
         FontRenderer.draw_text(ui_x + 8, opt_y + 46, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
         FontRenderer.draw_text(ui_x + 8, opt_y + 56, f"射程: {unit.get_range(level)}", 7, font_name="default")

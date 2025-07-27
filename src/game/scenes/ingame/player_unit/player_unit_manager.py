@@ -50,7 +50,7 @@ class PlayerUnitManager:
         """
         if pos in self.units:
             self.is_upgrading_unit = True
-            self.upgrade_ui_cursor = 0
+            self.upgrade_ui_cursor = 1
             self.selected_unit_pos = pos
 
     def close_upgrade_ui(self) -> None:

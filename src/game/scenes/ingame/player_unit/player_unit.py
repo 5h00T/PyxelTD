@@ -6,6 +6,16 @@ from typing import List
 
 
 class PlayerUnit:
+    def get_upgrade_cost(self, level: int) -> int:
+        """
+        次のレベルへの強化コストを返す。強化不可の場合は0を返す。
+        level: 現在のレベル（1始まり）
+        """
+        idx = min(level, len(self.upgrade_cost) - 1)
+        if level >= self.max_level:
+            return 0
+        return self.upgrade_cost[idx]
+
     """
     プレイヤーユニットの基底クラス。
     攻撃力・射程・コスト・レベル・範囲攻撃フラグ等を持つ。
@@ -18,6 +28,7 @@ class PlayerUnit:
         icon: int,
         description: str,
         cost: int,
+        upgrade_cost: List[int],
         attack: List[int],
         range: List[int],
         is_aoe: bool = False,
@@ -30,6 +41,7 @@ class PlayerUnit:
         self.icon = icon
         self.description = description
         self.cost = cost
+        self.upgrade_cost = upgrade_cost
         self.attack = attack  # レベルごとの攻撃力 [lv1, lv2, ...]
         self.range = range  # レベルごとの射程 [lv1, lv2, ...]
         self.is_aoe = is_aoe
@@ -80,7 +92,8 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         icon=0,
         description="近距離単体攻撃ユニット",
         cost=10,
-        attack=[10, 13, 16, 20, 25],
+        upgrade_cost=[10, 20, 40, 50, 100],
+        attack=[10, 15, 20, 25, 30],
         range=[1, 1, 1, 1, 1],
         is_aoe=False,
         shape="rect",
@@ -92,8 +105,9 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         icon=1,
         description="遠距離単体攻撃ユニット",
         cost=20,
-        attack=[7, 10, 13, 17, 22],
-        range=[3, 3, 4, 4, 5],
+        upgrade_cost=[20, 40, 80, 160, 320],
+        attack=[10, 20, 30, 25, 30],
+        range=[3, 3, 4, 4, 6],
         is_aoe=False,
         shape="tri",
         level_colors=[3, 11, 12, 10, 8],
@@ -103,9 +117,10 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         name="魔法使い",
         icon=2,
         description="範囲攻撃ユニット",
-        cost=50,
-        attack=[5, 7, 10, 14, 18],
-        range=[2, 2, 3, 3, 4],
+        cost=150,
+        upgrade_cost=[200, 400, 700, 800, 1000],
+        attack=[25, 40, 50, 60, 60],
+        range=[8, 8, 8, 8, 11],
         is_aoe=True,
         shape="circ",
         level_colors=[3, 11, 12, 10, 8],
