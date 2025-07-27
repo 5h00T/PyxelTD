@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..ingame_manager import InGameManager
 from .in_game_state import GameStateProtocol
 from .state_result import StateResult
+from ....utils.font_renderer import FontRenderer
 
 
 class GameOverState(GameStateProtocol):
@@ -17,6 +18,13 @@ class GameOverState(GameStateProtocol):
     ゲームオーバー状態。
     リトライやタイトルへの遷移を管理。
     """
+
+    def setup(self) -> None:
+        """
+        状態の初期化処理。
+        必要に応じて実装する。
+        """
+        pass
 
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
@@ -43,9 +51,7 @@ class GameOverState(GameStateProtocol):
         """
         ゲームオーバー画面の描画。
         """
-        import pyxel
-
         manager.map.draw()
         # 画面中央にゲームオーバー表示
-        pyxel.text(60, 40, "GAME OVER", 8)
-        pyxel.text(40, 60, "R: Retry   Q: Menu", 7)
+        FontRenderer.draw_text(60, 40, "GAME OVER", 15, font_name="default")
+        FontRenderer.draw_text(40, 60, "R: Retry   Q: Menu", 15, font_name="default")

@@ -2,10 +2,12 @@
 PlayerUnitManager - プレイヤーユニットの配置・管理・攻撃処理を担当
 """
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..ingame_manager import InGameManager
 from .player_unit import PlayerUnit
 from ..enemy.enemy_manager import EnemyManager
-from ..ingame_manager import InGameManager
 
 
 class PlayerUnitInstance:

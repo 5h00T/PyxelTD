@@ -46,11 +46,3 @@ class EnemyManager:
         """
         for enemy in self.enemies:
             enemy.draw(camera_x, camera_y)
-
-    def clear(self) -> None:
-        """
-        全ての敵ユニットを削除。
-        """
-        self.enemies.clear()
-
-    # サンプルエネミー自動生成はStageManagerに移譲。今後はこのメソッドは使わない。

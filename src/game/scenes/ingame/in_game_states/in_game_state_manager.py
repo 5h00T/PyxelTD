@@ -28,7 +28,8 @@ class InGameStateManager:
         self.playing_state = PlayingState(enemy_manager)
         self.clear_state = ClearState()
         self.gameover_state = GameOverState()
-        self.current_state: GameStateProtocol = self.prestart_state
+        self.current_state: GameStateProtocol
+        self.change_state(self.prestart_state)
 
     def change_state(self, new_state: GameStateProtocol) -> None:
         """
@@ -37,6 +38,7 @@ class InGameStateManager:
             new_state (GameStateProtocol): 新しい状態インスタンス
         """
         print(f"Changing state to {new_state.__class__.__name__}")
+        new_state.setup()
         self.current_state = new_state
 
     def update(self, manager: "InGameManager", input_manager: "InputManager") -> StateResult:

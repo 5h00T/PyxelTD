@@ -20,6 +20,13 @@ class GameStateProtocol(Protocol):
     各状態はupdate/drawを実装すること。
     """
 
+    def setup(self) -> None:
+        """
+        状態の初期化処理。
+        必要に応じて実装する。
+        """
+        pass
+
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
     ) -> StateResult:

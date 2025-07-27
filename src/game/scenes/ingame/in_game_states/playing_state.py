@@ -27,6 +27,13 @@ class PlayingState(GameStateProtocol):
         """
         self.enemy_manager = enemy_manager
 
+    def setup(self) -> None:
+        """
+        状態の初期化処理。
+        必要に応じて実装する。
+        """
+        pass
+
     def update(
         self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
     ) -> StateResult:
@@ -34,7 +41,9 @@ class PlayingState(GameStateProtocol):
         ゲームプレイ中の状態更新処理。
         各役割ごとに分割したメソッドを呼び出し、主処理はフロー制御のみとする。
         """
-        self._update_stage_and_units(manager)
+        is_all_wave_complete = self._update_stage_and_units(manager)
+        if is_all_wave_complete:
+            state_manager.change_state(state_manager.clear_state)
         self._update_enemies(manager, state_manager)
         pum = manager.player_unit_manager
         if pum.is_upgrading_unit:
@@ -65,12 +74,15 @@ class PlayingState(GameStateProtocol):
             pum.close_upgrade_ui()
         return StateResult.NONE
 
-    def _update_stage_and_units(self, manager: "InGameManager") -> None:
+    def _update_stage_and_units(self, manager: "InGameManager") -> bool:
         """
         ステージ進行・プレイヤーユニットの更新を行う。
+        Returns:
+            bool: 全ウェーブが終了したかどうか
         """
-        manager.stage_manager.update()
+        is_all_wave_complete = manager.stage_manager.update()
         manager.player_unit_manager.update(manager.enemy_manager, ingame_manager=manager)
+        return is_all_wave_complete
 
     def _update_enemies(self, manager: "InGameManager", state_manager: "InGameStateManager") -> list[Enemy]:
         """
