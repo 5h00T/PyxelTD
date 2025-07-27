@@ -2,7 +2,7 @@
 StageManager - ステージ進行・エネミー出現管理クラス
 """
 
-from .stage_master import StageMasterData, EnemySpawnData
+from .stage_master import StageMasterData, EnemySpawnData, FlyingEnemySpawnData
 from .enemy.enemy_manager import EnemyManager
 from .enemy.enemy import BasicEnemy
 from .enemy.enemy import Enemy
@@ -50,24 +50,26 @@ class StageManager:
         """
         マスターデータに従いエネミーを生成・EnemyManagerに追加
         """
-        path = self.stage_master.paths[spawn.path_id]
         # 敵種ごとにクラスを分岐
         enemy: Enemy
+        goal_point = self.map.get_goal()
+        path = self.map.get_path(spawn.spawn_point, goal_point) if goal_point else []
+        print(f"Spawning {spawn.enemy_type} at {spawn.spawn_point} with path {path} goal {goal_point}")
         if spawn.enemy_type == BasicEnemy.__name__:
-            enemy = BasicEnemy(x=path[0][0], y=path[0][1], path=path)
+            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
         elif spawn.enemy_type == FastEnemy.__name__:
-            enemy = FastEnemy(x=path[0][0], y=path[0][1], path=path)
+            enemy = FastEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
         elif spawn.enemy_type == TankEnemy.__name__:
-            enemy = TankEnemy(x=path[0][0], y=path[0][1], path=path)
-        elif spawn.enemy_type == FlyingEnemy.__name__:
-            # マップ外(-2, y)からpath[0]へ飛行し、着地後は道を進む
-            print(f"Spawning FlyingEnemy at {path}")
-            # TODO: 着地位置はマスターデータから取得する
-            # TODO: 生成位置はマスターデータから取得する
+            enemy = TankEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
+        elif isinstance(spawn, FlyingEnemySpawnData):
+            flying_spawn_data = spawn
             enemy = FlyingEnemy(
-                start_x=-2, start_y=path[0][1], land_pos=(13, 6), path=self.map.get_path((13, 6), path[-1])
+                start_x=flying_spawn_data.spawn_point[0],
+                start_y=flying_spawn_data.spawn_point[1],
+                land_pos=flying_spawn_data.landing_point,
+                path=self.map.get_path(flying_spawn_data.landing_point, goal=goal_point),
             )
         else:
             # 未知の敵種はBasicEnemyで代用
-            enemy = BasicEnemy(x=path[0][0], y=path[0][1], path=path)
+            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
         self.enemy_manager.spawn_enemy(enemy)

@@ -98,80 +98,6 @@ class Map:
                 paths.append(path)
         return paths
 
-    def get_path_from_entrance_to_goal(self) -> list[tuple[int, int]]:
-        """
-        マップデータから入口（画面外）→道（TILE_PATH=0）→ゴール（TILE_GOAL=3）までの経路を抽出。
-        Returns:
-            list[tuple[int, int]]: 経路となるタイル座標リスト
-        """
-        TILE_PATH = 0
-        TILE_GOAL = 3
-        height = self.height
-        width = self.width
-        # 入口（画面外に隣接するTILE_PATH）を左端・上端・右端・下端から探す
-        entrances = []
-        for y in range(height):
-            if self.data[y][0] == TILE_PATH:
-                entrances.append((0, y))
-            if self.data[y][width - 1] == TILE_PATH:
-                entrances.append((width - 1, y))
-        for x in range(width):
-            if self.data[0][x] == TILE_PATH:
-                entrances.append((x, 0))
-            if self.data[height - 1][x] == TILE_PATH:
-                entrances.append((x, height - 1))
-        if not entrances:
-            return []
-        start = entrances[0]  # 最初の入口を採用
-        # ゴール（TILE_GOAL=3）を探す
-        goal = None
-        for y in range(height):
-            for x in range(width):
-                if self.data[y][x] == TILE_GOAL:
-                    goal = (x, y)
-                    break
-            if goal:
-                break
-        if not goal:
-            return []
-        # 経路探索（幅優先探索でTILE_PATHとTILE_GOALを辿る）
-        from collections import deque
-        from typing import Optional, Tuple
-
-        visited = [[False] * width for _ in range(height)]
-        prev: list[list[Optional[Tuple[int, int]]]] = [[None for _ in range(width)] for _ in range(height)]
-        queue: deque[Tuple[int, int]] = deque()
-        sx, sy = start
-        queue.append((sx, sy))
-        visited[sy][sx] = True
-        while queue:
-            x, y = queue.popleft()
-            if (x, y) == goal:
-                break
-            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < width and 0 <= ny < height:
-                    if not visited[ny][nx] and (self.data[ny][nx] == TILE_PATH or self.data[ny][nx] == TILE_GOAL):
-                        visited[ny][nx] = True
-                        prev[ny][nx] = (x, y)
-                        queue.append((nx, ny))
-        # ゴールまでの経路を復元
-        path = []
-        x, y = goal
-        while (x, y) != start:
-            path.append((x, y))
-            if prev[y][x] is None:
-                # 経路が途切れている場合
-                return []
-            # 安全にアンパック
-            next_pos = prev[y][x]
-            if next_pos is None:
-                return []
-            x, y = next_pos
-        path.append(start)
-        path.reverse()
-        return path
-
     def get_path(self, start: tuple[int, int], goal: tuple[int, int]) -> list[tuple[int, int]]:
         """
         指定した開始位置からゴールまでの最短経路を抽出。
@@ -230,6 +156,18 @@ class Map:
         path.append(start)
         path.reverse()
         return path
+
+    def get_goal(self) -> tuple[int, int]:
+        """
+        ゴール地点のタイル座標を取得。
+        Returns:
+            tuple[int, int]: ゴール地点の座標
+        """
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.data[y][x] == TILE_GOAL:
+                    return (x, y)
+        return (-1, -1)
 
     """
     マップタイル管理クラス。
