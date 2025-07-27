@@ -10,6 +10,7 @@ from .enemy.enemy_manager import EnemyManager
 from .ingame_result import InGameResult
 from ...utils.font_renderer import FontRenderer
 from .constants import TILE_SIZE
+from .player_unit.player_unit_manager import PlayerUnitManager
 
 
 class Unit:
@@ -55,7 +56,6 @@ class InGameManager:
         from .stage_manager import StageManager
 
         # マップ生成後にパスをセット
-        SAMPLE_STAGE_MASTER.paths = self.map.get_all_paths_from_entrances_to_goal()
         self.stage_manager = StageManager(SAMPLE_STAGE_MASTER, self.enemy_manager, self.map)
         self.state_manager = InGameStateManager(self.enemy_manager)
         from .cursor import Cursor
@@ -114,6 +114,7 @@ class InGameManager:
         self.draw_right_ui(game, camera_x, camera_y)
         self.draw_bottom_ui(game)
         self.draw_cursor(camera_x, camera_y)
+        self.state_manager.draw(self)
 
     def draw_background(self) -> None:
         import pyxel
@@ -159,7 +160,7 @@ class InGameManager:
         else:
             self._draw_default_right_ui(game)
 
-    def _draw_upgrade_ui(self, game: "Game", pum) -> None:
+    def _draw_upgrade_ui(self, game: "Game", pum: "PlayerUnitManager") -> None:
         import pyxel
 
         ui_x = self.camera.view_width * TILE_SIZE
@@ -176,7 +177,10 @@ class InGameManager:
         FontRenderer.draw_text(
             ui_x + 4, opt_y + 16, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
         )
-        x, y = pum.selected_unit_pos
+        if pum.selected_unit_pos is None:
+            x, y = (-1, -1)
+        else:
+            x, y = pum.selected_unit_pos
         inst = pum.units[(x, y)]
         unit = inst.unit
         level = inst.level

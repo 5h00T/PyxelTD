@@ -3,12 +3,13 @@ FontRenderer - 任意のフォントでテキスト描画を行うユーティ�
 """
 
 import pyxel
+from typing import Any
 
 
 class FontRenderer:
     _singleton = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> "FontRenderer":
         if cls._singleton is None:
             cls._singleton = super().__new__(cls)
         return cls._singleton

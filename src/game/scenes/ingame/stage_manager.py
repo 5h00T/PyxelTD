@@ -2,7 +2,7 @@
 StageManager - ステージ進行・エネミー出現管理クラス
 """
 
-from .stage_master import StageMasterData, EnemySpawnData, FlyingEnemySpawnData
+from .stage_master import StageMasterData, EnemySpawnData, FlyingEnemySpawnData, StageWaveData
 from .enemy.enemy_manager import EnemyManager
 from .enemy.enemy import BasicEnemy
 from .enemy.enemy import Enemy
@@ -26,25 +26,37 @@ class StageManager:
         self.wave_index = 0
         self.spawned_flags: set[tuple[int, int]] = set()  # (wave, spawn_idx)のタプル
 
-    def update(self) -> None:
+    def update(self) -> bool:
         """
         経過フレームを進め、出現タイミングのエネミーをスポーン
+        ウェーブ内の全ての敵が死亡したらウェーブ完了とする
         """
         if self.wave_index >= len(self.stage_master.waves):
-            return  # 全ウェーブ終了
+            # 全ウェーブ終了
+            return True
         wave = self.stage_master.waves[self.wave_index]
         for idx, spawn in enumerate(wave.spawns):
             key = (self.wave_index, idx)
             if self.frame >= spawn.time and key not in self.spawned_flags:
                 self.spawn_enemy(spawn)
                 self.spawned_flags.add(key)
-        # ウェーブ終了判定
-        if all((self.wave_index, idx) in self.spawned_flags for idx in range(len(wave.spawns))):
+
+        if self._is_wave_complete(wave):
             self.wave_index += 1
             self.frame = 0
             self.spawned_flags = set()
         else:
             self.frame += 1
+
+        return False
+
+    def _is_wave_complete(self, wave: StageWaveData) -> bool:
+        """
+        ウェーブ内の全ての敵がスポーン済み かつ 全ての敵が死亡したらTrue
+        """
+        all_spawned = all((self.wave_index, idx) in self.spawned_flags for idx in range(len(wave.spawns)))
+        all_dead = len(self.enemy_manager.enemies) == 0
+        return all_spawned and all_dead
 
     def spawn_enemy(self, spawn: EnemySpawnData) -> None:
         """
