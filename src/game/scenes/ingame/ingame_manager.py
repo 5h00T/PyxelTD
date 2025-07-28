@@ -238,9 +238,9 @@ class InGameManager:
                 bg_color = 13 if idx == self.unit_ui_cursor else 5
             if idx == self.unit_ui_cursor:
                 pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, bg_color)
-            FontRenderer.draw_text(ui_x + 8, y + 2, f"{unit.name}", name_color, font_name="default")
-            cost_str = f"コスト: {unit.cost}"
-            FontRenderer.draw_text(ui_x + 8, y + 2 + font_h, cost_str, cost_color, font_name="default")
+            FontRenderer.draw_text(ui_x + 4, y + 2, f"{unit.name}", name_color, font_name="default")
+            cost_str = f"コスト:{unit.cost}"
+            FontRenderer.draw_text(ui_x + 4, y + 2 + font_h, cost_str, cost_color, font_name="default")
         sel_unit = self.unit_list[self.unit_ui_cursor]
         desc_y = ui_y + ui_h - 24
         max_desc_width = ui_w - 8

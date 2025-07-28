@@ -11,6 +11,7 @@ import pyxel
 
 from .base_scene import BaseScene
 from .scene_type import SceneType
+from ..utils.font_renderer import FontRenderer
 
 
 class TitleScene(BaseScene):
@@ -24,9 +25,9 @@ class TitleScene(BaseScene):
     def update(self, game: Game, input_manager: InputManager) -> None:
         """
         タイトル画面の更新処理。
-        スペースキーでメニューシーンに遷移。
+        Zキーでメニューシーンに遷移。
         """
-        if input_manager.is_triggered(pyxel.KEY_SPACE):
+        if input_manager.is_triggered(pyxel.KEY_Z):
             game.change_scene(new_scene=SceneType.MENU)
 
     def draw(self, game: Game) -> None:
@@ -34,5 +35,5 @@ class TitleScene(BaseScene):
         タイトル画面の描画処理。
         """
         pyxel.cls(0)
-        pyxel.text(60, 50, "PyxelTD", 7)
-        pyxel.text(40, 70, "Press SPACE to start", 6)
+        FontRenderer.draw_text(60, 50, "PyxelTD", 7, font_name="default")
+        FontRenderer.draw_text(40, 70, "Press Z to start", 6, font_name="default")

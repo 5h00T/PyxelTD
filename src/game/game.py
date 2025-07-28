@@ -36,7 +36,6 @@ class Game:
                 pyxel.KEY_DOWN,
                 pyxel.KEY_LEFT,
                 pyxel.KEY_RIGHT,
-                pyxel.KEY_SPACE,
                 pyxel.KEY_RETURN,
                 pyxel.KEY_P,
                 pyxel.KEY_Q,
