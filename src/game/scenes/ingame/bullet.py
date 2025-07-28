@@ -12,7 +12,14 @@ class Bullet:
     """
 
     def __init__(
-        self, x: float, y: float, target: "Enemy", damage: int, speed: float = 0.5, aoe_radius: float = 0.0
+        self,
+        x: float,
+        y: float,
+        target: "Enemy",
+        damage: int,
+        speed: float = 0.5,
+        aoe_radius: float = 0.0,
+        flying_effect: bool = False,
     ) -> None:
         self.x = x
         self.y = y
@@ -22,6 +29,7 @@ class Bullet:
         self.aoe_radius = aoe_radius  # 範囲攻撃半径（0なら単体）
         self.is_active = True
         self.hit_pos = None  # type: tuple[float, float] | None
+        self.flying_effect = flying_effect
 
     def update(self) -> None:
         """
@@ -40,7 +48,11 @@ class Bullet:
                 # 範囲攻撃: 範囲内の敵全てにダメージ（Manager側で処理）
                 self.hit_pos = (self.target.x, self.target.y)
             else:
-                self.target.damage(self.damage)
+                damage = self.damage
+                if self.flying_effect:
+                    # 飛行特効ならダメージを2倍
+                    damage *= 2
+                self.target.damage(damage)
             self.is_active = False
         else:
             self.x += self.speed * dx / dist

@@ -35,6 +35,7 @@ class PlayerUnit:
         max_level: int = 5,
         shape: str = "rect",
         level_colors: List[int] = [],
+        flying_effect: bool = False,
     ) -> None:
         self.unit_id = unit_id
         self.name = name
@@ -48,6 +49,7 @@ class PlayerUnit:
         self.max_level = max_level
         self.shape = shape  # rect/tri/circ など
         self.level_colors = level_colors
+        self.flying_effect = flying_effect
 
     def get_color(self, level: int) -> int:
         """
@@ -88,9 +90,9 @@ class PlayerUnit:
 PLAYER_UNIT_MASTER: List[PlayerUnit] = [
     PlayerUnit(
         unit_id=1,
-        name="近距離",
+        name="槍兵",
         icon=0,
-        description="近距離単体攻撃ユニット",
+        description="近距離攻撃ユニット",
         cost=10,
         upgrade_cost=[10, 20, 40, 50, 100],
         attack=[10, 15, 20, 25, 30],
@@ -103,7 +105,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         unit_id=2,
         name="弓兵",
         icon=1,
-        description="遠距離単体攻撃ユニット",
+        description="飛行特効ユニット",
         cost=20,
         upgrade_cost=[20, 40, 80, 160, 320],
         attack=[10, 20, 30, 25, 30],
@@ -111,6 +113,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         is_aoe=False,
         shape="tri",
         level_colors=[3, 11, 12, 10, 8],
+        flying_effect=True,
     ),
     PlayerUnit(
         unit_id=3,

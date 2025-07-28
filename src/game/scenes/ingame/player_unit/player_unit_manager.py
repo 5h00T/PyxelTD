@@ -92,6 +92,7 @@ class PlayerUnitManager:
             bullet.update()
 
         # 範囲攻撃弾の着弾処理
+        # 単体攻撃はバレット側で行っているので範囲攻撃もバレット側でいいかも
         for bullet in self.bullets:
             if bullet.aoe_radius > 0 and bullet.hit_pos is not None:
                 bx, by = bullet.hit_pos
@@ -101,7 +102,11 @@ class PlayerUnitManager:
                     ex, ey = enemy.x, enemy.y
                     dist = ((ex - bx) ** 2 + (ey - by) ** 2) ** 0.5
                     if dist <= bullet.aoe_radius:
-                        enemy.damage(bullet.damage)
+                        damage = bullet.damage
+                        if bullet.flying_effect:
+                            # 飛行特効ならダメージを2倍
+                            damage *= 2
+                        enemy.damage(damage)
                 bullet.hit_pos = None  # 1回だけ処理
 
         # --- 敵撃破時の資金加算 ---
@@ -137,10 +142,12 @@ class PlayerUnitManager:
             if inst.unit.is_aoe:
                 # 範囲攻撃: 射程内全てに弾
                 for t in targets:
-                    self.bullets.append(Bullet(cx, cy, t, attack_power, aoe_radius=1.5))
+                    self.bullets.append(
+                        Bullet(cx, cy, t, attack_power, aoe_radius=1.5, flying_effect=inst.unit.flying_effect)
+                    )
             else:
                 # 単体攻撃: 最初の敵に弾
-                self.bullets.append(Bullet(cx, cy, targets[0], attack_power))
+                self.bullets.append(Bullet(cx, cy, targets[0], attack_power, flying_effect=inst.unit.flying_effect))
             inst.attack_cooldown = 30  # 仮: 30フレームごとに攻撃
 
     def draw(self, camera_x: int, camera_y: int) -> None:

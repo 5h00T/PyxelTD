@@ -58,10 +58,7 @@ SAMPLE_STAGE_MASTER = StageMasterData(
                 # 5体のTankEnemyを1200,1260,1320,1380,1440フレームで出現
                 # *[EnemySpawnData(time=1200 + i * 60, enemy_type="TankEnemy", spawn_point=(3, 0)) for i in range(5)],
                 # 5体のFlyingEnemyを1800,1860,1920,1980,2040フレームで出現
-                # *[
-                #   FlyingEnemySpawnData(time=1800 + i * 60, spawn_point=(9, 0), landing_point=(13, 6))
-                #   for i in range(5)
-                # ],
+                *[FlyingEnemySpawnData(time=100 + i * 60, spawn_point=(9, 0), landing_point=(13, 6)) for i in range(5)],
             ]
         ),
         StageWaveData([]),

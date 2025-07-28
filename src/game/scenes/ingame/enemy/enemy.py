@@ -25,6 +25,7 @@ class Enemy(ABC):
         self.is_alive = True  # Falseなら死亡・ゴール到達
         self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
         self.reward = reward  # 撃破時の資金増加量
+        self.is_flying = False  # 飛行中かどうか
 
     def update(self) -> bool:
         """
@@ -197,7 +198,7 @@ class FlyingEnemy(Enemy):
     マップ外で生成され、指定座標まで直線飛行し、着地後は道を進む。
     """
 
-    DEFAULT_HP = 10
+    DEFAULT_HP = 20
     DEFAULT_SPEED = 0.09
     COLOR = 6  # 青
 
@@ -236,10 +237,7 @@ class FlyingEnemy(Enemy):
                 self.x = self.landing_x
                 self.y = self.landing_y
                 self.is_flying = False
-                # self.path_index = 0  # 着地後、道の最初から進む
-                # TODO: 防衛拠点までのpathを生成する
                 self.path_index = 0
-                print(f"FlyingEnemy landed at ({self.x}, {self.y}), now following path.")
 
             else:
                 if dist != 0:
