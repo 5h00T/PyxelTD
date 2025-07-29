@@ -31,6 +31,7 @@ class PlayerUnit:
         upgrade_cost: List[int],
         attack: List[int],
         range: List[int],
+        attack_interval: int = 30,
         is_aoe: bool = False,
         max_level: int = 5,
         shape: str = "rect",
@@ -45,6 +46,7 @@ class PlayerUnit:
         self.upgrade_cost = upgrade_cost
         self.attack = attack  # レベルごとの攻撃力 [lv1, lv2, ...]
         self.range = range  # レベルごとの射程 [lv1, lv2, ...]
+        self.attack_interval = attack_interval  # 発射間隔（フレーム数）
         self.is_aoe = is_aoe
         self.max_level = max_level
         self.shape = shape  # rect/tri/circ など
@@ -97,6 +99,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         upgrade_cost=[10, 20, 40, 50, 100],
         attack=[10, 15, 20, 25, 30],
         range=[1, 1, 1, 1, 1],
+        attack_interval=30,
         is_aoe=False,
         shape="rect",
         level_colors=[3, 11, 12, 10, 8],
@@ -110,6 +113,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         upgrade_cost=[20, 40, 80, 160, 320],
         attack=[10, 20, 30, 25, 30],
         range=[3, 3, 4, 4, 6],
+        attack_interval=50,
         is_aoe=False,
         shape="tri",
         level_colors=[3, 11, 12, 10, 8],
@@ -124,6 +128,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         upgrade_cost=[200, 400, 700, 800, 1000],
         attack=[25, 40, 50, 60, 60],
         range=[8, 8, 8, 8, 11],
+        attack_interval=200,
         is_aoe=True,
         shape="circ",
         level_colors=[3, 11, 12, 10, 8],

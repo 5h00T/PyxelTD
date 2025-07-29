@@ -148,7 +148,7 @@ class PlayerUnitManager:
             else:
                 # 単体攻撃: 最初の敵に弾
                 self.bullets.append(Bullet(cx, cy, targets[0], attack_power, flying_effect=inst.unit.flying_effect))
-            inst.attack_cooldown = 30  # 仮: 30フレームごとに攻撃
+            inst.attack_cooldown = inst.unit.attack_interval  # ユニットごとの発射間隔
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         """
