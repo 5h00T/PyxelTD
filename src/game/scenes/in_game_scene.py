@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..game import Game
@@ -22,10 +22,13 @@ class InGameScene(BaseScene):
     ステートパターンで状態管理。
     """
 
-    def __init__(self, stage_number: int = 1) -> None:
+    def __init__(self, scene_param: dict[str, Any] | None = None) -> None:
         super().__init__()
-        self.stage_number = stage_number
-        self.manager = InGameManager(self, stage_number)
+        stage_index = 0
+        if scene_param is not None and "stage_index" in scene_param:
+            stage_index = scene_param["stage_index"]
+        self.stage_index = stage_index
+        self.manager = InGameManager(self, stage_index)
 
     def change_state(self, new_state: GameStateProtocol) -> None:
         """

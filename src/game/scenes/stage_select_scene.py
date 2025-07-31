@@ -35,7 +35,7 @@ class StageSelectScene(BaseScene):
         elif input_manager.is_triggered(pyxel.KEY_DOWN):
             self.selected_stage = (self.selected_stage + 1) % len(self.stages)
         elif input_manager.is_triggered(pyxel.KEY_Z):
-            game.change_scene(new_scene=SceneType.IN_GAME)
+            game.change_scene(new_scene=SceneType.IN_GAME, scene_param={"stage_index": self.selected_stage})
         elif input_manager.is_triggered(pyxel.KEY_Q):
             game.change_scene(new_scene=SceneType.MENU)
 

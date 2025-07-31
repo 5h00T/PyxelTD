@@ -43,20 +43,17 @@ class InGameManager:
     インゲームのマップとステート管理を担当。
     """
 
-    def __init__(self, ingame_scene: "InGameScene", stage_number: int = 1) -> None:
+    def __init__(self, ingame_scene: "InGameScene", stage_index: int = 0) -> None:
         self.ingame_scene = ingame_scene
-        # 仮: ステージごとにサイズ可変、最低14x14保証
-        self.stage_number = stage_number
-        width = max(16, 14)
-        height = max(12, 14)
-        self.map = Map(width=width, height=height)
-        self.enemy_manager = EnemyManager()
-        # --- ステージマスターデータ・マネージャ ---
-        from .stage_master import SAMPLE_STAGE_MASTER
+        self.stage_index = stage_index
+        from .stage_master import STAGE_MASTER_LIST
         from .stage_manager import StageManager
 
-        # マップ生成後にパスをセット
-        self.stage_manager = StageManager(SAMPLE_STAGE_MASTER, self.enemy_manager, self.map)
+        stage_data = STAGE_MASTER_LIST[stage_index]
+        self.map = Map(map_data=stage_data.map_data)
+        self.enemy_manager = EnemyManager()
+        # --- ステージマスターデータ・マネージャ ---
+        self.stage_manager = StageManager(stage_data, self.enemy_manager, self.map)
         self.state_manager = InGameStateManager(self.enemy_manager)
         from .cursor import Cursor
         from .camera import Camera

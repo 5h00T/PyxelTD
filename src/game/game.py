@@ -1,3 +1,4 @@
+from typing import Any
 from .utils.font_renderer import FontRenderer
 
 """
@@ -68,11 +69,15 @@ class Game:
         if self.current_scene:
             self.current_scene.draw(self)
 
-    def change_scene(self, new_scene: SceneType) -> None:
+    def change_scene(self, new_scene: SceneType, scene_param: dict[str, Any] | None = None) -> None:
         """
         シーンを変更する。
 
         Args:
             new_scene: 新しいシーンのインスタンス
+            scene_param: シーン遷移用のパラメータ辞書
         """
-        self.current_scene = self.scenes[new_scene]()
+        if scene_param is None:
+            self.current_scene = self.scenes[new_scene]()
+        else:
+            self.current_scene = self.scenes[new_scene](scene_param=scene_param)
