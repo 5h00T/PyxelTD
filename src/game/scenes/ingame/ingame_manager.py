@@ -61,8 +61,10 @@ class InGameManager:
         from .cursor import Cursor
         from .camera import Camera
 
-        self.cursor = Cursor(self.map.width, self.map.height)
-        self.camera = Camera(self.map.width, self.map.height)
+        goal_pos = self.map.get_goal()
+        self.cursor = Cursor(goal_pos, self.map.width, self.map.height)
+        init_pos = goal_pos
+        self.camera = Camera(init_pos, self.map.width, self.map.height)
 
         # --- Player unit master ---
         from .player_unit.player_unit import PLAYER_UNIT_MASTER

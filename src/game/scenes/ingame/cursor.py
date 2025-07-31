@@ -10,9 +10,9 @@ class Cursor:
     マップ上のカーソル位置・移動・描画を管理するクラス。
     """
 
-    def __init__(self, map_width: int, map_height: int) -> None:
-        self.x = 0
-        self.y = 0
+    def __init__(self, init_position: Tuple[int, int], map_width: int, map_height: int) -> None:
+        self.x = init_position[0]
+        self.y = init_position[1]
         self.map_width = map_width
         self.map_height = map_height
 
