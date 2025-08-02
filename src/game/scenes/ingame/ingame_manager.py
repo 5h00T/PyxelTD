@@ -54,7 +54,7 @@ class InGameManager:
         self.enemy_manager = EnemyManager()
         # --- ステージマスターデータ・マネージャ ---
         self.stage_manager = StageManager(stage_data, self.enemy_manager, self.map)
-        self.state_manager = InGameStateManager(self.enemy_manager)
+        self.state_manager = InGameStateManager(self, self.enemy_manager)
         from .cursor import Cursor
         from .camera import Camera
 

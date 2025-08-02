@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Callable, Optional
 
 """
 Enemy - 敵ユニットの基本クラス
@@ -14,7 +14,16 @@ class Enemy(ABC):
     継承先で各メソッドを実装すること。
     """
 
-    def __init__(self, x: float, y: float, speed: float, hp: int, path: list[Tuple[int, int]], reward: int = 5) -> None:
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        speed: float,
+        hp: int,
+        path: list[Tuple[int, int]],
+        reward: int = 5,
+        on_defeat: Optional[Callable] = None,
+    ) -> None:
         self.x = x
         self.y = y
         self.speed = speed
@@ -26,6 +35,7 @@ class Enemy(ABC):
         self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
         self.reward = reward  # 撃破時の資金増加量
         self.is_flying = False  # 飛行中かどうか
+        self.on_defeat = on_defeat  # 敵撃破時のコールバック
 
     def update(self) -> bool:
         """
@@ -74,6 +84,8 @@ class Enemy(ABC):
         self.hp_bar_timer = 60
         if self.hp <= 0:
             self.is_alive = False
+            if self.on_defeat:
+                self.on_defeat(self)
 
     def is_goal(self) -> bool:
         """
@@ -93,8 +105,8 @@ class BasicEnemy(Enemy):
     DEFAULT_SPEED = 0.05
     COLOR = 8  # 赤
 
-    def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=5)
+    def __init__(self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable] = None) -> None:
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=5, on_defeat=on_defeat)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -129,8 +141,8 @@ class FastEnemy(Enemy):
     DEFAULT_SPEED = 0.12
     COLOR = 10  # 緑
 
-    def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=8)
+    def __init__(self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable] = None) -> None:
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=8, on_defeat=on_defeat)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -167,8 +179,8 @@ class TankEnemy(Enemy):
     DEFAULT_SPEED = 0.025
     COLOR = 12  # 紫
 
-    def __init__(self, x: float, y: float, path: list[tuple[int, int]]) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=15)
+    def __init__(self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable] = None) -> None:
+        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=15, on_defeat=on_defeat)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -202,14 +214,21 @@ class FlyingEnemy(Enemy):
     DEFAULT_SPEED = 0.09
     COLOR = 6  # 青
 
-    def __init__(self, start_x: float, start_y: float, land_pos: Tuple[int, int], path: List[Tuple[int, int]]) -> None:
+    def __init__(
+        self,
+        start_x: float,
+        start_y: float,
+        land_pos: Tuple[int, int],
+        path: List[Tuple[int, int]],
+        on_defeat: Optional[Callable] = None,
+    ) -> None:
         """
         Args:
             start_x, start_y: マップ外の初期座標
             land_pos: 着地する道の座標 (タイル座標)
             path: 着地後に進む道のリスト
         """
-        super().__init__(start_x, start_y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=12)
+        super().__init__(start_x, start_y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=12, on_defeat=on_defeat)
         self.landing_x = land_pos[0]
         self.landing_y = land_pos[1]
         self.is_flying = True

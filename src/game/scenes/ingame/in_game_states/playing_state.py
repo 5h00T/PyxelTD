@@ -20,11 +20,12 @@ class PlayingState(GameStateProtocol):
     クリア・ゲームオーバー判定で状態遷移。
     """
 
-    def __init__(self, enemy_manager: "EnemyManager") -> None:
+    def __init__(self, ingame_manager: "InGameManager", enemy_manager: "EnemyManager") -> None:
         """
         初期化処理。
         必要な変数や状態を設定。
         """
+        self.ingame_manager = ingame_manager
         self.enemy_manager = enemy_manager
 
     def setup(self) -> None:
@@ -96,9 +97,15 @@ class PlayingState(GameStateProtocol):
         Returns:
             bool: 全ウェーブが終了したかどうか
         """
-        is_all_wave_complete = manager.stage_manager.update()
+        is_all_wave_complete = manager.stage_manager.update(on_defeat=self._on_defeat_enemy)
         manager.player_unit_manager.update(manager.enemy_manager, ingame_manager=manager)
         return is_all_wave_complete
+
+    def _on_defeat_enemy(self, enemy: Enemy) -> None:
+        """
+        敵が倒されたときの処理。
+        """
+        self.ingame_manager.funds += enemy.reward
 
     def _update_enemies(self, manager: "InGameManager", state_manager: "InGameStateManager") -> list[Enemy]:
         """

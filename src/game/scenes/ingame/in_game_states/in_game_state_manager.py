@@ -23,9 +23,9 @@ class InGameStateManager:
     状態インスタンスの生成・保持・遷移を担当。
     """
 
-    def __init__(self, enemy_manager: "EnemyManager") -> None:
+    def __init__(self, ingame_manager: "InGameManager", enemy_manager: "EnemyManager") -> None:
         self.prestart_state = PreStartState()
-        self.playing_state = PlayingState(enemy_manager)
+        self.playing_state = PlayingState(ingame_manager, enemy_manager)
         self.clear_state = ClearState()
         self.gameover_state = GameOverState()
         self.current_state: GameStateProtocol

@@ -1,7 +1,4 @@
-"""
-StageManager - ステージ進行・エネミー出現管理クラス
-"""
-
+from typing import Callable
 from .stage_master import StageMasterData, EnemySpawnData, FlyingEnemySpawnData, StageWaveData, Delay
 from .enemy.enemy_manager import EnemyManager
 from .enemy.enemy import BasicEnemy
@@ -26,7 +23,7 @@ class StageManager:
         self.spawn_index = 0  # 現在のspawnsリストのインデックス
         self.delay_counter = 0  # Delay用カウンタ
 
-    def update(self) -> bool:
+    def update(self, on_defeat: Callable) -> bool:
         """
         ウェーブ進行・エネミー出現管理。
         spawnsリストを順次処理し、Delayなら待機、EnemySpawnDataなら即スポーン。
@@ -49,7 +46,7 @@ class StageManager:
                     self.delay_counter = 0
                     self.spawn_index += 1
             elif isinstance(spawn, (EnemySpawnData, FlyingEnemySpawnData)):
-                self.spawn_enemy(spawn)
+                self.spawn_enemy(spawn, on_defeat)
                 self.spawn_index += 1
             else:
                 # 未知の型はスキップ
@@ -70,23 +67,19 @@ class StageManager:
         all_dead = len(self.enemy_manager.enemies) == 0
         return all_spawned and all_dead
 
-    def spawn_enemy(self, spawn: EnemySpawnData) -> None:
+    def spawn_enemy(self, spawn: EnemySpawnData, onDefeat: Callable) -> None:
         """
         マスターデータに従いエネミーを生成・EnemyManagerに追加
         """
         enemy: Enemy
         goal_point = self.map.get_goal()
         path = self.map.get_path(spawn.spawn_point, goal_point) if goal_point else []
-        print(
-            f"Spawning {getattr(spawn, 'enemy_type', type(spawn).__name__)} "
-            f"at {spawn.spawn_point} with path {path} goal {goal_point}"
-        )
         if spawn.enemy_type == BasicEnemy.__name__:
-            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
+            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
         elif spawn.enemy_type == FastEnemy.__name__:
-            enemy = FastEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
+            enemy = FastEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
         elif spawn.enemy_type == TankEnemy.__name__:
-            enemy = TankEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
+            enemy = TankEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
         elif isinstance(spawn, FlyingEnemySpawnData):
             flying_spawn_data = spawn
             enemy = FlyingEnemy(
@@ -94,8 +87,9 @@ class StageManager:
                 start_y=flying_spawn_data.spawn_point[1],
                 land_pos=flying_spawn_data.landing_point,
                 path=self.map.get_path(flying_spawn_data.landing_point, goal=goal_point),
+                on_defeat=onDefeat,
             )
         else:
             # 未知の敵種はBasicEnemyで代用
-            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
+            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
         self.enemy_manager.spawn_enemy(enemy)
