@@ -2,7 +2,7 @@
 StageManager - ステージ進行・エネミー出現管理クラス
 """
 
-from .stage_master import StageMasterData, EnemySpawnData, FlyingEnemySpawnData, StageWaveData
+from .stage_master import StageMasterData, EnemySpawnData, FlyingEnemySpawnData, StageWaveData, Delay
 from .enemy.enemy_manager import EnemyManager
 from .enemy.enemy import BasicEnemy
 from .enemy.enemy import Enemy
@@ -22,39 +22,51 @@ class StageManager:
         self.stage_master = stage_master
         self.enemy_manager = enemy_manager
         self.map = map
-        self.frame = 0
         self.wave_index = 0
-        self.spawned_flags: set[tuple[int, int]] = set()  # (wave, spawn_idx)のタプル
+        self.spawn_index = 0  # 現在のspawnsリストのインデックス
+        self.delay_counter = 0  # Delay用カウンタ
 
     def update(self) -> bool:
         """
-        経過フレームを進め、出現タイミングのエネミーをスポーン
-        ウェーブ内の全ての敵が死亡したらウェーブ完了とする
+        ウェーブ進行・エネミー出現管理。
+        spawnsリストを順次処理し、Delayなら待機、EnemySpawnDataなら即スポーン。
+        ウェーブ内の全ての敵が死亡したらウェーブ完了とする。
         """
         if self.wave_index >= len(self.stage_master.waves):
             # 全ウェーブ終了
             return True
         wave = self.stage_master.waves[self.wave_index]
-        for idx, spawn in enumerate(wave.spawns):
-            key = (self.wave_index, idx)
-            if self.frame >= spawn.time and key not in self.spawned_flags:
-                self.spawn_enemy(spawn)
-                self.spawned_flags.add(key)
+        spawns = wave.spawns
 
+        # spawnsリストを順次処理
+        while self.spawn_index < len(spawns):
+            spawn = spawns[self.spawn_index]
+            if isinstance(spawn, Delay):
+                if self.delay_counter < spawn.frame:
+                    self.delay_counter += 1
+                    break  # Delay中はここで止める
+                else:
+                    self.delay_counter = 0
+                    self.spawn_index += 1
+            elif isinstance(spawn, (EnemySpawnData, FlyingEnemySpawnData)):
+                self.spawn_enemy(spawn)
+                self.spawn_index += 1
+            else:
+                # 未知の型はスキップ
+                self.spawn_index += 1
+
+        # ウェーブ完了判定
         if self._is_wave_complete(wave):
             self.wave_index += 1
-            self.frame = 0
-            self.spawned_flags = set()
-        else:
-            self.frame += 1
-
+            self.spawn_index = 0
+            self.delay_counter = 0
         return False
 
     def _is_wave_complete(self, wave: StageWaveData) -> bool:
         """
-        ウェーブ内の全ての敵がスポーン済み かつ 全ての敵が死亡したらTrue
+        ウェーブ内の全てのspawnsを処理し終え、かつ全ての敵が死亡したらTrue
         """
-        all_spawned = all((self.wave_index, idx) in self.spawned_flags for idx in range(len(wave.spawns)))
+        all_spawned = self.spawn_index >= len(wave.spawns)
         all_dead = len(self.enemy_manager.enemies) == 0
         return all_spawned and all_dead
 
@@ -62,11 +74,13 @@ class StageManager:
         """
         マスターデータに従いエネミーを生成・EnemyManagerに追加
         """
-        # 敵種ごとにクラスを分岐
         enemy: Enemy
         goal_point = self.map.get_goal()
         path = self.map.get_path(spawn.spawn_point, goal_point) if goal_point else []
-        print(f"Spawning {spawn.enemy_type} at {spawn.spawn_point} with path {path} goal {goal_point}")
+        print(
+            f"Spawning {getattr(spawn, 'enemy_type', type(spawn).__name__)} "
+            f"at {spawn.spawn_point} with path {path} goal {goal_point}"
+        )
         if spawn.enemy_type == BasicEnemy.__name__:
             enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path)
         elif spawn.enemy_type == FastEnemy.__name__:
