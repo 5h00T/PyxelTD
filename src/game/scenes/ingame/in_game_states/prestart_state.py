@@ -73,4 +73,5 @@ class PreStartState(GameStateProtocol):
         GAME STARTテキストをアニメーションで描画。
         上から下に流れ、中央で停止し、下に流れて消える。
         """
-        FontRenderer.draw_text(self.text_x, int(self.text_y), "GAME START", 15, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(self.text_x, int(self.text_y), "GAME START", 15, font_name="default")

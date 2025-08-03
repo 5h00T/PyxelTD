@@ -52,5 +52,6 @@ class GameOverState(GameStateProtocol):
         ゲームオーバー画面の描画。
         """
         # 画面中央にゲームオーバー表示
-        FontRenderer.draw_text(60, 40, "GAME OVER", 15, font_name="default")
-        FontRenderer.draw_text(40, 60, "R: Retry   Q: Menu", 15, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(60, 40, "GAME OVER", 15, font_name="default")
+        font_renderer.draw_text(40, 60, "R: Retry   Q: Menu", 15, font_name="default")

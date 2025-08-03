@@ -45,5 +45,6 @@ class ClearState(GameStateProtocol):
         """
         ゲームクリア画面の描画。
         """
-        FontRenderer.draw_text(60, 40, "GAME CLEAR", 15, font_name="default")
-        FontRenderer.draw_text(60, 60, "Q: Menu", 15, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(60, 40, "GAME CLEAR", 15, font_name="default")
+        font_renderer.draw_text(60, 60, "Q: Menu", 15, font_name="default")

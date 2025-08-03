@@ -48,9 +48,10 @@ class MenuScene(BaseScene):
         メニュー画面の描画処理。
         """
         pyxel.cls(0)
-        FontRenderer.draw_text(70, 30, "MENU", 7, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(70, 30, "MENU", 7, font_name="default")
         for i, option in enumerate(self.options):
             color = 11 if i == self.selected_option else 6
             y_pos = 50 + i * 15
-            FontRenderer.draw_text(60, y_pos, option, color, font_name="default")
-        FontRenderer.draw_text(30, 100, "UP/DOWN:カーソル移動, Z:決定", 5, font_name="default")
+            font_renderer.draw_text(60, y_pos, option, color, font_name="default")
+        font_renderer.draw_text(30, 100, "UP/DOWN:カーソル移動, Z:決定", 5, font_name="default")

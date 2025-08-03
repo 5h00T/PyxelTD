@@ -51,5 +51,6 @@ class StageSelectScene(BaseScene):
             y_pos = 40 + i * 15
             pyxel.text(60, y_pos, stage, color)
 
-        FontRenderer.draw_text(20, 100, "UP/DOWN: カーソル移動, Z:決定", 5, font_name="default")
-        FontRenderer.draw_text(25, 110, "Q: メニューに戻る", 5, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(20, 100, "UP/DOWN: カーソル移動, Z:決定", 5, font_name="default")
+        font_renderer.draw_text(25, 110, "Q: メニューに戻る", 5, font_name="default")

@@ -170,7 +170,8 @@ class InGameManager:
         title_text = "ユニット強化"
         title_w = len(title_text) * 8
         title_x = ui_x + (ui_w - title_w) // 2
-        FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
         opt_y = ui_y + 16
 
         # 強化コスト・資金チェック
@@ -186,27 +187,28 @@ class InGameManager:
 
         # 強化ボタン色: 押せる=10, 押せない=5
         upgrade_color = 10 if can_upgrade and pum.upgrade_ui_cursor == 0 else (7 if can_upgrade else 5)
-        FontRenderer.draw_text(ui_x + 4, opt_y, "強化", upgrade_color, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(ui_x + 4, opt_y, "強化", upgrade_color, font_name="default")
         # コスト表示
         if level < unit.max_level:
             cost_str = f"コスト:{next_cost}"
             cost_color = 3 if can_upgrade else 8
-            FontRenderer.draw_text(ui_x + 4, opt_y + 14, cost_str, cost_color, font_name="default")
+            font_renderer.draw_text(ui_x + 4, opt_y + 14, cost_str, cost_color, font_name="default")
         else:
-            FontRenderer.draw_text(ui_x + 4, opt_y + 14, "最大レベル", 8, font_name="default")
+            font_renderer.draw_text(ui_x + 4, opt_y + 14, "最大レベル", 8, font_name="default")
 
         # キャンセルボタン
-        FontRenderer.draw_text(
+        font_renderer.draw_text(
             ui_x + 4, opt_y + 24, "キャンセル", 10 if pum.upgrade_ui_cursor == 1 else 7, font_name="default"
         )
 
-        FontRenderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
-        FontRenderer.draw_text(ui_x + 8, opt_y + 46, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
-        FontRenderer.draw_text(ui_x + 8, opt_y + 56, f"射程: {unit.get_range(level)}", 7, font_name="default")
+        font_renderer.draw_text(ui_x + 8, opt_y + 36, f"Lv: {level}", 7, font_name="default")
+        font_renderer.draw_text(ui_x + 8, opt_y + 46, f"攻撃: {unit.get_attack(level)}", 7, font_name="default")
+        font_renderer.draw_text(ui_x + 8, opt_y + 56, f"射程: {unit.get_range(level)}", 7, font_name="default")
         if level < unit.max_level:
-            FontRenderer.draw_text(ui_x + 8, opt_y + 70, f"→ Lv: {level+1}", 13, font_name="default")
-            FontRenderer.draw_text(ui_x + 8, opt_y + 80, f"攻:{unit.get_attack(level+1)}", 13, font_name="default")
-            FontRenderer.draw_text(ui_x + 8, opt_y + 90, f"射:{unit.get_range(level+1)}", 13, font_name="default")
+            font_renderer.draw_text(ui_x + 8, opt_y + 70, f"→ Lv: {level+1}", 13, font_name="default")
+            font_renderer.draw_text(ui_x + 8, opt_y + 80, f"攻:{unit.get_attack(level+1)}", 13, font_name="default")
+            font_renderer.draw_text(ui_x + 8, opt_y + 90, f"射:{unit.get_range(level+1)}", 13, font_name="default")
 
     def _draw_unit_select_ui(self, game: "Game") -> None:
         import pyxel
@@ -219,7 +221,8 @@ class InGameManager:
         title_text = "ユニット選択"
         title_w = len(title_text) * 8
         title_x = ui_x + (ui_w - title_w) // 2
-        FontRenderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(title_x, ui_y + 4, title_text, 7, font_name="default")
         font_h = 8
         item_pad = 4
         item_h = font_h * 2 + item_pad
@@ -237,9 +240,9 @@ class InGameManager:
                 bg_color = 13 if idx == self.unit_ui_cursor else 5
             if idx == self.unit_ui_cursor:
                 pyxel.rect(ui_x + 2, y - 2, ui_w - 4, item_h, bg_color)
-            FontRenderer.draw_text(ui_x + 4, y + 2, f"{unit.name}", name_color, font_name="default")
+            font_renderer.draw_text(ui_x + 4, y + 2, f"{unit.name}", name_color, font_name="default")
             cost_str = f"コスト:{unit.cost}"
-            FontRenderer.draw_text(ui_x + 4, y + 2 + font_h, cost_str, cost_color, font_name="default")
+            font_renderer.draw_text(ui_x + 4, y + 2 + font_h, cost_str, cost_color, font_name="default")
         sel_unit = self.unit_list[self.unit_ui_cursor]
         desc_y = ui_y + ui_h - 24
         max_desc_width = ui_w - 8
@@ -250,7 +253,7 @@ class InGameManager:
             desc_lines.append(desc[:max_chars_per_line])
             desc = desc[max_chars_per_line:]
         for i, line in enumerate(desc_lines[:2]):
-            FontRenderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
+            font_renderer.draw_text(ui_x + 4, desc_y + i * 9, line, 13, font_name="default")
 
     def _draw_default_right_ui(self, game: "Game") -> None:
         import pyxel
@@ -272,8 +275,9 @@ class InGameManager:
         pyxel.rect(ui_x, ui_y, ui_w, ui_h, 13)
         funds = self.funds
         funds_text = f"資金: {funds}"
-        FontRenderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
-        FontRenderer.draw_text(
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
+        font_renderer.draw_text(
             8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7, font_name="default"
         )
 

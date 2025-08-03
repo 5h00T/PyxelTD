@@ -28,8 +28,9 @@ class Game:
     def __init__(self) -> None:
         pyxel.init(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
         # フォント登録（必要に応じて複数登録可）
-        FontRenderer.register_font("default", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_mincho.bdf")
-        FontRenderer.register_font("gothic", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_gothic.bdf")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.register_font("default", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_mincho.bdf")
+        font_renderer.register_font("gothic", "../../assets/fonts/misaki_bdf_2021-05-05/misaki_gothic.bdf")
         self.input_manager = InputManager(
             [
                 # ESCは終了なので除外

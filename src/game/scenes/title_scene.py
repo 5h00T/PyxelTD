@@ -35,5 +35,6 @@ class TitleScene(BaseScene):
         タイトル画面の描画処理。
         """
         pyxel.cls(0)
-        FontRenderer.draw_text(60, 50, "PyxelTD", 7, font_name="default")
-        FontRenderer.draw_text(40, 70, "Press Z to start", 6, font_name="default")
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(60, 50, "PyxelTD", 7, font_name="default")
+        font_renderer.draw_text(40, 70, "Press Z to start", 6, font_name="default")

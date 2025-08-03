@@ -7,55 +7,50 @@ from typing import Any
 
 
 class FontRenderer:
-    _singleton = None
+    _instance = None
 
     def __new__(cls, *args: Any, **kwargs: Any) -> "FontRenderer":
-        if cls._singleton is None:
-            cls._singleton = super().__new__(cls)
-        return cls._singleton
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            # インスタンス変数の初期化
+            cls._instance._font_instances = {}
+            cls._instance._name_to_path = {}
+        return cls._instance
 
-    """
-    フォント名でBDFフォントを管理し、テキスト描画を行うシングルトンユーティリティ。
-    """
+    def __init__(self) -> None:
+        if not hasattr(self, "_initialized"):
+            self._font_instances: dict[str, Any] = {}
+            self._name_to_path: dict[str, str] = {}
+            self._initialized = True
 
-    _font_instances: dict[str, "FontRenderer"] = {}
-    _name_to_path: dict[str, str] = {}
+    @staticmethod
+    def get_instance() -> "FontRenderer":
+        return FontRenderer()
 
-    def __init__(self, font_path: str) -> None:
-        self.font_path = font_path
-        self.font = pyxel.Font(font_path)
-
-    @classmethod
-    def register_font(cls, name: str, font_path: str) -> None:
+    def register_font(self, name: str, font_path: str) -> None:
         """
         フォント名とパスを登録し、インスタンスを生成しておく。
         """
-        cls._name_to_path[name] = font_path
-        if font_path not in cls._font_instances:
-            cls._font_instances[font_path] = cls(font_path)
+        self._name_to_path[name] = font_path
+        if font_path not in self._font_instances:
+            self._font_instances[font_path] = pyxel.Font(font_path)
 
-    @classmethod
-    def get_by_name(cls, name: str) -> "FontRenderer":
-        """
-        フォント名からインスタンスを取得。
-        """
-        font_path = cls._name_to_path.get(name)
+    def get_font(self, name: str):
+        font_path = self._name_to_path.get(name)
         if not font_path:
             raise ValueError(f"Font name '{name}' is not registered.")
-        return cls._font_instances[font_path]
+        return self._font_instances[font_path]
 
-    @classmethod
-    def draw_text(cls, x: int, y: int, text: str, color: int = 7, font_name: str = "default") -> None:
+    def draw_text(self, x: int, y: int, text: str, color: int = 7, font_name: str = "default") -> None:
         """
         指定フォント名でテキストを描画。
         """
-        renderer = cls.get_by_name(font_name)
-        pyxel.text(x, y, text, color, renderer.font)
+        font = self.get_font(font_name)
+        pyxel.text(x, y, text, color, font)
 
-    @classmethod
-    def text_width(cls, text: str, font_name: str = "default") -> int:
+    def text_width(self, text: str, font_name: str = "default") -> int:
         """
         指定フォント名でテキスト幅を取得。
         """
-        renderer = cls.get_by_name(font_name)
-        return renderer.font.text_width(text)
+        font = self.get_font(font_name)
+        return font.text_width(text)
