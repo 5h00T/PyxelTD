@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from ..ingame_manager import InGameManager
 from .player_unit import PlayerUnit
 from ..enemy.enemy_manager import EnemyManager
+from ..enemy.buff import SpeedDownBuff
 
 
 class PlayerUnitInstance:
@@ -89,25 +90,7 @@ class PlayerUnitManager:
 
         # 弾の更新・消滅処理
         for bullet in self.bullets:
-            bullet.update()
-
-        # 範囲攻撃弾の着弾処理
-        # 単体攻撃はバレット側で行っているので範囲攻撃もバレット側でいいかも
-        for bullet in self.bullets:
-            if bullet.aoe_radius > 0 and bullet.hit_pos is not None:
-                bx, by = bullet.hit_pos
-                for enemy in enemy_manager.enemies:
-                    if not enemy.is_alive:
-                        continue
-                    ex, ey = enemy.x, enemy.y
-                    dist = ((ex - bx) ** 2 + (ey - by) ** 2) ** 0.5
-                    if dist <= bullet.aoe_radius:
-                        damage = bullet.damage
-                        if bullet.flying_effect:
-                            # 飛行特効ならダメージを2倍
-                            damage *= 2
-                        enemy.damage(damage)
-                bullet.hit_pos = None  # 1回だけ処理
+            bullet.update(enemy_manager.enemies)
 
         self.bullets = [b for b in self.bullets if b.is_active]
 
@@ -140,7 +123,17 @@ class PlayerUnitManager:
                     )
             else:
                 # 単体攻撃: 最初の敵に弾
-                self.bullets.append(Bullet(cx, cy, targets[0], attack_power, flying_effect=inst.unit.flying_effect))
+                speed_down_buff = SpeedDownBuff(duration=300, speed_multiplier=0.5)
+                self.bullets.append(
+                    Bullet(
+                        cx,
+                        cy,
+                        targets[0],
+                        attack_power,
+                        grant_buff=speed_down_buff,
+                        flying_effect=inst.unit.flying_effect,
+                    )
+                )
             inst.attack_cooldown = inst.unit.attack_interval  # ユニットごとの発射間隔
 
     def draw(self, camera_x: int, camera_y: int) -> None:

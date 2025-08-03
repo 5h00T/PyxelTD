@@ -1,4 +1,6 @@
 from typing import List, Tuple, Callable, Optional
+from .buff_manager import BuffManager
+from .buff import BuffBase
 
 """
 Enemy - 敵ユニットの基本クラス
@@ -18,7 +20,7 @@ class Enemy(ABC):
         self,
         x: float,
         y: float,
-        speed: float,
+        base_speed: float,
         hp: int,
         path: list[Tuple[int, int]],
         reward: int = 5,
@@ -26,7 +28,7 @@ class Enemy(ABC):
     ) -> None:
         self.x = x
         self.y = y
-        self.speed = speed
+        self.base_speed = base_speed
         self.max_hp = hp
         self.hp = hp
         self.path = path
@@ -36,6 +38,7 @@ class Enemy(ABC):
         self.reward = reward  # 撃破時の資金増加量
         self.is_flying = False  # 飛行中かどうか
         self.on_defeat = on_defeat  # 敵撃破時のコールバック
+        self.buff_manager = BuffManager()
 
     def update(self) -> bool:
         """
@@ -43,6 +46,7 @@ class Enemy(ABC):
         Returns:
             bool: 防衛拠点に到達したらTrue
         """
+        self.buff_manager.update()
         if not self.is_alive:
             return False
         if self.hp <= 0:
@@ -55,14 +59,14 @@ class Enemy(ABC):
             dx = target_x - self.x
             dy = target_y - self.y
             dist = (dx**2 + dy**2) ** 0.5
-            if dist < self.speed:
+            if dist < self.get_speed():
                 self.x = target_x
                 self.y = target_y
                 self.path_index += 1
             else:
                 if dist != 0:
-                    self.x += self.speed * dx / dist
-                    self.y += self.speed * dy / dist
+                    self.x += self.get_speed() * dx / dist
+                    self.y += self.get_speed() * dy / dist
         else:
             self.is_alive = False
         return self.is_goal()
@@ -94,6 +98,23 @@ class Enemy(ABC):
             bool: ゴールに到達したらTrue
         """
         return self.path_index >= len(self.path)
+
+    def add_buff(self, buff: BuffBase) -> None:
+        """
+        バフを適用する。
+        Args:
+            buff: Buffインスタンス
+        """
+        self.buff_manager.add_buff(buff)
+
+    def get_speed(self) -> float:
+        """
+        現在の移動速度を取得。
+        バフによる速度変更があれば反映される。
+        Returns:
+            float: 現在の移動速度
+        """
+        return self.base_speed * self.buff_manager.get_speed_multiplier()
 
 
 class BasicEnemy(Enemy):
@@ -258,7 +279,7 @@ class FlyingEnemy(Enemy):
             dx = self.landing_x - self.x
             dy = self.landing_y - self.y
             dist = (dx**2 + dy**2) ** 0.5
-            if dist < self.speed:
+            if dist < self.get_speed():
                 self.x = self.landing_x
                 self.y = self.landing_y
                 self.is_flying = False
@@ -266,8 +287,8 @@ class FlyingEnemy(Enemy):
 
             else:
                 if dist != 0:
-                    self.x += self.speed * dx / dist
-                    self.y += self.speed * dy / dist
+                    self.x += self.get_speed() * dx / dist
+                    self.y += self.get_speed() * dy / dist
             return False
         else:
             # 着地後は通常の道エネミーと同じ
