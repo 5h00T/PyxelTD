@@ -114,7 +114,6 @@ class PlayingState(GameStateProtocol):
         """
         goal_enemies = self.enemy_manager.update()
         if goal_enemies:
-            print(f"Goal reached by {len(goal_enemies)} enemies!")
             manager.base_hp -= len(goal_enemies)
             # ゴール到達エネミーはリストから除去
             self.enemy_manager.enemies = [e for e in self.enemy_manager.enemies if not (e.is_goal() and e.is_alive)]

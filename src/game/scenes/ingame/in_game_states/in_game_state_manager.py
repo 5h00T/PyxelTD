@@ -37,7 +37,6 @@ class InGameStateManager:
         Args:
             new_state (GameStateProtocol): 新しい状態インスタンス
         """
-        print(f"Changing state to {new_state.__class__.__name__}")
         new_state.setup()
         self.current_state = new_state
 
@@ -45,7 +44,6 @@ class InGameStateManager:
         """
         現在の状態の更新処理。
         """
-        print(f"Updating state: {self.current_state.__class__.__name__}")
         return self.current_state.update(self, manager, input_manager)
 
     def draw(self, manager: "InGameManager") -> None:
