@@ -179,7 +179,7 @@ class FastEnemy(Enemy):
 
     DEFAULT_HP = 10
     DEFAULT_SPEED = 0.09
-    DEFAULT_REWARD = 5
+    DEFAULT_REWARD = 4
     COLOR = 10  # 緑
 
     def __init__(
@@ -234,7 +234,7 @@ class TankEnemy(Enemy):
 
     DEFAULT_HP = 29
     DEFAULT_SPEED = 0.025
-    DEFAULT_REWARD = 6
+    DEFAULT_REWARD = 5
     COLOR = 12  # 紫
 
     def __init__(
@@ -286,7 +286,7 @@ class FlyingEnemy(Enemy):
 
     DEFAULT_HP = 22
     DEFAULT_SPEED = 0.05
-    DEFAULT_REWARD = 7
+    DEFAULT_REWARD = 6
     COLOR = 6  # 青
 
     def __init__(
