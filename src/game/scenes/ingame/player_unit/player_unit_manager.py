@@ -96,8 +96,6 @@ class PlayerUnitManager:
 
         # 各ユニットの攻撃判定
         for inst in self.units.values():
-            if not hasattr(inst, "attack_cooldown"):
-                inst.attack_cooldown = 0
             if inst.attack_cooldown > 0:
                 inst.attack_cooldown -= 1
                 continue
