@@ -45,7 +45,7 @@ class InGameScene(BaseScene):
         """
         result = self.manager.update(input_manager)
         if result == InGameResult.RETRY:
-            game.change_scene(new_scene=SceneType.IN_GAME)
+            game.change_scene(new_scene=SceneType.IN_GAME, scene_param={"stage_index": self.stage_index})
         elif result == InGameResult.STAGE_SELECT:
             game.change_scene(new_scene=SceneType.STAGE_SELECT)
 
