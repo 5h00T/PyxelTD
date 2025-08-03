@@ -22,7 +22,7 @@ class StageSelectScene(BaseScene):
     def __init__(self) -> None:
         super().__init__()
         self.selected_stage = 0
-        self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4"]
+        self.stages = ["Stage 1", "Stage 2", "Stage 3"]
 
     def update(self, game: Game, input_manager: InputManager) -> None:
         """

@@ -22,7 +22,7 @@ class MenuScene(BaseScene):
     def __init__(self) -> None:
         super().__init__()
         self.selected_option = 0
-        self.options = ["Start Game", "Settings", "Exit"]
+        self.options = ["Start Game", "Exit"]
 
     def update(self, game: Game, input_manager: InputManager) -> None:
         """
@@ -37,10 +37,7 @@ class MenuScene(BaseScene):
         elif input_manager.is_triggered(pyxel.KEY_Z):
             if self.selected_option == 0:  # Start Game
                 game.change_scene(new_scene=SceneType.STAGE_SELECT)
-            elif self.selected_option == 1:  # Settings
-                # TODO: Implement settings scene
-                pass
-            elif self.selected_option == 2:  # Exit
+            elif self.selected_option == 1:  # Exit
                 pyxel.quit()
 
     def draw(self, game: Game) -> None:
