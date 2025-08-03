@@ -123,14 +123,16 @@ class PlayerUnitManager:
                     )
             else:
                 # 単体攻撃: 最初の敵に弾
-                speed_down_buff = SpeedDownBuff(duration=300, speed_multiplier=0.5)
+                grant_buff = None
+                if inst.unit.grants_slow:
+                    grant_buff = SpeedDownBuff(duration=300, speed_multiplier=0.5)
                 self.bullets.append(
                     Bullet(
                         cx,
                         cy,
                         targets[0],
                         attack_power,
-                        grant_buff=speed_down_buff,
+                        grant_buff=grant_buff,
                         flying_effect=inst.unit.flying_effect,
                     )
                 )
