@@ -22,7 +22,7 @@ class Enemy(ABC):
         hp: int,
         path: list[Tuple[int, int]],
         reward: int = 5,
-        on_defeat: Optional[Callable] = None,
+        on_defeat: Optional[Callable[["Enemy"], None]] = None,
     ) -> None:
         self.x = x
         self.y = y
@@ -105,7 +105,9 @@ class BasicEnemy(Enemy):
     DEFAULT_SPEED = 0.05
     COLOR = 8  # 赤
 
-    def __init__(self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable] = None) -> None:
+    def __init__(
+        self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable[["Enemy"], None]] = None
+    ) -> None:
         super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=5, on_defeat=on_defeat)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
@@ -141,7 +143,9 @@ class FastEnemy(Enemy):
     DEFAULT_SPEED = 0.12
     COLOR = 10  # 緑
 
-    def __init__(self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable] = None) -> None:
+    def __init__(
+        self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable[["Enemy"], None]] = None
+    ) -> None:
         super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=8, on_defeat=on_defeat)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
@@ -179,7 +183,9 @@ class TankEnemy(Enemy):
     DEFAULT_SPEED = 0.025
     COLOR = 12  # 紫
 
-    def __init__(self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable] = None) -> None:
+    def __init__(
+        self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable[["Enemy"], None]] = None
+    ) -> None:
         super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=15, on_defeat=on_defeat)
 
     def draw(self, camera_x: int, camera_y: int) -> None:
@@ -220,7 +226,7 @@ class FlyingEnemy(Enemy):
         start_y: float,
         land_pos: Tuple[int, int],
         path: List[Tuple[int, int]],
-        on_defeat: Optional[Callable] = None,
+        on_defeat: Optional[Callable[["Enemy"], None]] = None,
     ) -> None:
         """
         Args:

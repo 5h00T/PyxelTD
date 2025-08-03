@@ -23,7 +23,7 @@ class StageManager:
         self.spawn_index = 0  # 現在のspawnsリストのインデックス
         self.delay_counter = 0  # Delay用カウンタ
 
-    def update(self, on_defeat: Callable) -> bool:
+    def update(self, on_defeat: Callable[[Enemy], None]) -> bool:
         """
         ウェーブ進行・エネミー出現管理。
         spawnsリストを順次処理し、Delayなら待機、EnemySpawnDataなら即スポーン。
@@ -67,7 +67,7 @@ class StageManager:
         all_dead = len(self.enemy_manager.enemies) == 0
         return all_spawned and all_dead
 
-    def spawn_enemy(self, spawn: EnemySpawnData, onDefeat: Callable) -> None:
+    def spawn_enemy(self, spawn: EnemySpawnData, onDefeat: Callable[[Enemy], None]) -> None:
         """
         マスターデータに従いエネミーを生成・EnemyManagerに追加
         """
