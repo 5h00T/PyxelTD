@@ -93,7 +93,7 @@ class PlayerUnit:
 PLAYER_UNIT_MASTER: List[PlayerUnit] = [
     PlayerUnit(
         unit_id=1,
-        name="ガーディアン",
+        name="ソルジャー",
         icon=0,
         description="近距離攻撃",
         cost=10,
@@ -122,7 +122,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
     ),
     PlayerUnit(
         unit_id=4,
-        name="フロストメイジ",
+        name="メイジ",
         icon=3,
         description="ヒットした敵を遅くする",
         cost=40,
