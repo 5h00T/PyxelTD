@@ -41,7 +41,7 @@ class Bullet:
 
         def apply_damage(enemy: Enemy) -> None:
             damage = self.damage
-            if self.flying_effect:
+            if self.flying_effect and enemy.is_flying:
                 # 飛行特効ならダメージを2倍
                 damage *= 2
             enemy.damage(damage)
