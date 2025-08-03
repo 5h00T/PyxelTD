@@ -25,20 +25,22 @@ class Enemy(ABC):
         path: list[Tuple[int, int]],
         reward: int = 5,
         on_defeat: Optional[Callable[["Enemy"], None]] = None,
+        coefficient: float = 1.0,
     ) -> None:
         self.x = x
         self.y = y
         self.base_speed = base_speed
-        self.max_hp = hp
-        self.hp = hp
+        self.max_hp = int(hp * coefficient)  # ステージ難易度調整用係数を適用
+        self.hp = self.max_hp
         self.path = path
         self.path_index = 0
         self.is_alive = True  # Falseなら死亡・ゴール到達
         self.hp_bar_timer = 0  # HPバー表示タイマー（フレーム数）
-        self.reward = reward  # 撃破時の資金増加量
+        self.reward = int(reward * coefficient)  # 報酬も係数適用
         self.is_flying = False  # 飛行中かどうか
         self.on_defeat = on_defeat  # 敵撃破時のコールバック
         self.buff_manager = BuffManager()
+        self.coefficient = coefficient
 
     def update(self) -> bool:
         """
@@ -122,14 +124,29 @@ class BasicEnemy(Enemy):
     標準的な敵ユニット。
     """
 
-    DEFAULT_HP = 15
-    DEFAULT_SPEED = 0.05
+    DEFAULT_HP = 16
+    DEFAULT_SPEED = 0.04
+    DEFAULT_REWARD = 4
     COLOR = 8  # 赤
 
     def __init__(
-        self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable[["Enemy"], None]] = None
+        self,
+        x: float,
+        y: float,
+        path: list[tuple[int, int]],
+        on_defeat: Optional[Callable[["Enemy"], None]] = None,
+        coefficient: float = 1.0,
     ) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=5, on_defeat=on_defeat)
+        super().__init__(
+            x,
+            y,
+            self.DEFAULT_SPEED,
+            self.DEFAULT_HP,
+            path,
+            reward=self.DEFAULT_REWARD,
+            on_defeat=on_defeat,
+            coefficient=coefficient,
+        )
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -160,14 +177,29 @@ class FastEnemy(Enemy):
     高速移動型の敵ユニット。
     """
 
-    DEFAULT_HP = 8
-    DEFAULT_SPEED = 0.12
+    DEFAULT_HP = 10
+    DEFAULT_SPEED = 0.09
+    DEFAULT_REWARD = 4
     COLOR = 10  # 緑
 
     def __init__(
-        self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable[["Enemy"], None]] = None
+        self,
+        x: float,
+        y: float,
+        path: list[tuple[int, int]],
+        on_defeat: Optional[Callable[["Enemy"], None]] = None,
+        coefficient: float = 1.0,
     ) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=8, on_defeat=on_defeat)
+        super().__init__(
+            x,
+            y,
+            self.DEFAULT_SPEED,
+            self.DEFAULT_HP,
+            path,
+            reward=self.DEFAULT_REWARD,
+            on_defeat=on_defeat,
+            coefficient=coefficient,
+        )
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -200,14 +232,29 @@ class TankEnemy(Enemy):
     高耐久・低速型の敵ユニット。
     """
 
-    DEFAULT_HP = 40
+    DEFAULT_HP = 29
     DEFAULT_SPEED = 0.025
+    DEFAULT_REWARD = 5
     COLOR = 12  # 紫
 
     def __init__(
-        self, x: float, y: float, path: list[tuple[int, int]], on_defeat: Optional[Callable[["Enemy"], None]] = None
+        self,
+        x: float,
+        y: float,
+        path: list[tuple[int, int]],
+        on_defeat: Optional[Callable[["Enemy"], None]] = None,
+        coefficient: float = 1.0,
     ) -> None:
-        super().__init__(x, y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=15, on_defeat=on_defeat)
+        super().__init__(
+            x,
+            y,
+            self.DEFAULT_SPEED,
+            self.DEFAULT_HP,
+            path,
+            reward=self.DEFAULT_REWARD,
+            on_defeat=on_defeat,
+            coefficient=coefficient,
+        )
 
     def draw(self, camera_x: int, camera_y: int) -> None:
         import pyxel
@@ -237,8 +284,9 @@ class FlyingEnemy(Enemy):
     マップ外で生成され、指定座標まで直線飛行し、着地後は道を進む。
     """
 
-    DEFAULT_HP = 20
-    DEFAULT_SPEED = 0.09
+    DEFAULT_HP = 22
+    DEFAULT_SPEED = 0.05
+    DEFAULT_REWARD = 6
     COLOR = 6  # 青
 
     def __init__(
@@ -248,6 +296,7 @@ class FlyingEnemy(Enemy):
         land_pos: Tuple[int, int],
         path: List[Tuple[int, int]],
         on_defeat: Optional[Callable[["Enemy"], None]] = None,
+        coefficient: float = 1.0,
     ) -> None:
         """
         Args:
@@ -255,7 +304,16 @@ class FlyingEnemy(Enemy):
             land_pos: 着地する道の座標 (タイル座標)
             path: 着地後に進む道のリスト
         """
-        super().__init__(start_x, start_y, self.DEFAULT_SPEED, self.DEFAULT_HP, path, reward=12, on_defeat=on_defeat)
+        super().__init__(
+            start_x,
+            start_y,
+            self.DEFAULT_SPEED,
+            self.DEFAULT_HP,
+            path,
+            reward=self.DEFAULT_REWARD,
+            on_defeat=on_defeat,
+            coefficient=coefficient,
+        )
         self.landing_x = land_pos[0]
         self.landing_y = land_pos[1]
         self.is_flying = True

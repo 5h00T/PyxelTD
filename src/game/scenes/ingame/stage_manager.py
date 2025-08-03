@@ -75,11 +75,29 @@ class StageManager:
         goal_point = self.map.get_goal()
         path = self.map.get_path(spawn.spawn_point, goal_point) if goal_point else []
         if spawn.enemy_type == BasicEnemy.__name__:
-            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
+            enemy = BasicEnemy(
+                x=spawn.spawn_point[0],
+                y=spawn.spawn_point[1],
+                path=path,
+                on_defeat=onDefeat,
+                coefficient=spawn.coefficient,
+            )
         elif spawn.enemy_type == FastEnemy.__name__:
-            enemy = FastEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
+            enemy = FastEnemy(
+                x=spawn.spawn_point[0],
+                y=spawn.spawn_point[1],
+                path=path,
+                on_defeat=onDefeat,
+                coefficient=spawn.coefficient,
+            )
         elif spawn.enemy_type == TankEnemy.__name__:
-            enemy = TankEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
+            enemy = TankEnemy(
+                x=spawn.spawn_point[0],
+                y=spawn.spawn_point[1],
+                path=path,
+                on_defeat=onDefeat,
+                coefficient=spawn.coefficient,
+            )
         elif isinstance(spawn, FlyingEnemySpawnData):
             flying_spawn_data = spawn
             enemy = FlyingEnemy(
@@ -88,8 +106,8 @@ class StageManager:
                 land_pos=flying_spawn_data.landing_point,
                 path=self.map.get_path(flying_spawn_data.landing_point, goal=goal_point),
                 on_defeat=onDefeat,
+                coefficient=flying_spawn_data.coefficient,
             )
         else:
-            # 未知の敵種はBasicEnemyで代用
-            enemy = BasicEnemy(x=spawn.spawn_point[0], y=spawn.spawn_point[1], path=path, on_defeat=onDefeat)
+            raise ValueError(f"Unknown enemy type: {spawn.enemy_type}")
         self.enemy_manager.spawn_enemy(enemy)

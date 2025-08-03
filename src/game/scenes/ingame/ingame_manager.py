@@ -76,7 +76,7 @@ class InGameManager:
         self.unit_ui_cursor: int = 0
 
         # --- Base HP ---
-        self.base_hp: int = 2  # 防衛拠点のHP
+        self.base_hp: int = 5  # 防衛拠点のHP
         self.max_base_hp = self.base_hp  # 最大HP
 
         # --- 所持資金 ---
