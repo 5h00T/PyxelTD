@@ -2,13 +2,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from game import Game
-    from input_manager import InputManager
+    from ..game import Game
+    from ..input_manager import InputManager
 """
 StageSelectScene - ステージ選択画面のシーン
 """
 import pyxel
+
 from .base_scene import BaseScene
+from .scene_type import SceneType
+from ..utils.font_renderer import FontRenderer
 
 
 class StageSelectScene(BaseScene):
@@ -19,28 +22,24 @@ class StageSelectScene(BaseScene):
     def __init__(self) -> None:
         super().__init__()
         self.selected_stage = 0
-        self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4"]
+        self.stages = ["Stage 1", "Stage 2", "Stage 3"]
 
     def update(self, game: Game, input_manager: InputManager) -> None:
         """
         ステージ選択画面の更新処理。
-        上下キーで選択、スペースキーで決定、ESCでメニューに戻る。
+        上下キーで選択、Zで決定、Qでメニューに戻る。
         InputManager経由で入力判定。
         """
         if input_manager.is_triggered(pyxel.KEY_UP):
             self.selected_stage = (self.selected_stage - 1) % len(self.stages)
         elif input_manager.is_triggered(pyxel.KEY_DOWN):
             self.selected_stage = (self.selected_stage + 1) % len(self.stages)
-        elif input_manager.is_triggered(pyxel.KEY_SPACE):
-            from .in_game_scene import InGameScene
+        elif input_manager.is_triggered(pyxel.KEY_Z):
+            game.change_scene(new_scene=SceneType.IN_GAME, scene_param={"stage_index": self.selected_stage})
+        elif input_manager.is_triggered(pyxel.KEY_Q):
+            game.change_scene(new_scene=SceneType.MENU)
 
-            game.change_scene(InGameScene(self.selected_stage + 1))
-        elif input_manager.is_triggered(pyxel.KEY_ESCAPE):
-            from .menu_scene import MenuScene
-
-            game.change_scene(MenuScene())
-
-    def draw(self, game: Game, input_manager: InputManager) -> None:
+    def draw(self, game: Game) -> None:
         """
         ステージ選択画面の描画処理。
         """
@@ -52,5 +51,6 @@ class StageSelectScene(BaseScene):
             y_pos = 40 + i * 15
             pyxel.text(60, y_pos, stage, color)
 
-        pyxel.text(20, 100, "UP/DOWN: Select, SPACE: Start", 5)
-        pyxel.text(25, 110, "ESC: Back to Menu", 5)
+        font_renderer = FontRenderer.get_instance()
+        font_renderer.draw_text(20, 100, "UP/DOWN: カーソル移動, Z:決定", 5, font_name="default")
+        font_renderer.draw_text(25, 110, "Q: メニューに戻る", 5, font_name="default")

@@ -1,0 +1,187 @@
+"""
+ゲームプレイ中のステートクラス。
+"""
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ....input_manager import InputManager
+    from .in_game_state_manager import InGameStateManager
+    from ..ingame_manager import InGameManager
+from .in_game_state import GameStateProtocol
+from ..enemy.enemy_manager import EnemyManager
+from .state_result import StateResult
+from ..enemy.enemy import Enemy
+
+
+class PlayingState(GameStateProtocol):
+    """
+    ゲームプレイ中の状態。
+    クリア・ゲームオーバー判定で状態遷移。
+    """
+
+    def __init__(self, ingame_manager: "InGameManager", enemy_manager: "EnemyManager") -> None:
+        """
+        初期化処理。
+        必要な変数や状態を設定。
+        """
+        self.ingame_manager = ingame_manager
+        self.enemy_manager = enemy_manager
+
+    def setup(self) -> None:
+        """
+        状態の初期化処理。
+        必要に応じて実装する。
+        """
+        pass
+
+    def update(
+        self, state_manager: "InGameStateManager", manager: "InGameManager", input_manager: "InputManager"
+    ) -> StateResult:
+        """
+        ゲームプレイ中の状態更新処理。
+        各役割ごとに分割したメソッドを呼び出し、主処理はフロー制御のみとする。
+        """
+        is_all_wave_complete = self._update_stage_and_units(manager)
+        if is_all_wave_complete:
+            state_manager.change_state(state_manager.clear_state)
+        self._update_enemies(manager, state_manager)
+
+        # 選択中の場合
+        pum = manager.player_unit_manager
+        if pum.is_upgrading_unit:
+            return self._handle_upgrade_ui(manager, input_manager)
+        if manager.is_selecting_unit:
+            return self._handle_unit_selection_ui(manager, input_manager)
+
+        self._handle_normal_input(manager, input_manager)
+
+        self._update_camera(manager)
+        return StateResult.NONE
+
+    def _handle_upgrade_ui(self, manager: "InGameManager", input_manager: "InputManager") -> StateResult:
+        """
+        強化UIの入力処理。
+        """
+        import pyxel
+
+        pum = manager.player_unit_manager
+        if input_manager.is_triggered(pyxel.KEY_UP) or input_manager.is_triggered(pyxel.KEY_DOWN):
+            # コストが足りない場合は移動しない
+            if pum.selected_unit_pos is not None:
+                x, y = pum.selected_unit_pos
+                unit = pum.units[(x, y)].unit
+                next_cost = unit.get_upgrade_cost(pum.units[(x, y)].level)
+            if next_cost <= manager.funds:
+                # 強化UIのカーソルをトグル
+                pum.upgrade_ui_cursor = 1 - pum.upgrade_ui_cursor
+        elif input_manager.is_triggered(pyxel.KEY_Z):
+            if pum.selected_unit_pos is not None:
+                if pum.upgrade_ui_cursor == 0:
+                    # 強化選択
+                    x, y = pum.selected_unit_pos
+                    # コスト消費
+                    unit = pum.units[(x, y)].unit
+                    next_cost = unit.get_upgrade_cost(pum.units[(x, y)].level)
+                    manager.funds -= next_cost
+                    pum.level_up_unit(x, y)
+                pum.close_upgrade_ui()
+        elif input_manager.is_triggered(pyxel.KEY_X):
+            pum.close_upgrade_ui()
+        return StateResult.NONE
+
+    def _update_stage_and_units(self, manager: "InGameManager") -> bool:
+        """
+        ステージ進行・プレイヤーユニットの更新を行う。
+        Returns:
+            bool: 全ウェーブが終了したかどうか
+        """
+        is_all_wave_complete = manager.stage_manager.update(on_defeat=self._on_defeat_enemy)
+        manager.player_unit_manager.update(manager.enemy_manager, ingame_manager=manager)
+        return is_all_wave_complete
+
+    def _on_defeat_enemy(self, enemy: Enemy) -> None:
+        """
+        敵が倒されたときの処理。
+        """
+        self.ingame_manager.funds += enemy.reward
+
+    def _update_enemies(self, manager: "InGameManager", state_manager: "InGameStateManager") -> list[Enemy]:
+        """
+        エネミーの更新とゴール・ゲームオーバー判定を行う。
+        Returns:
+            list: ゴール到達したエネミーリスト
+        """
+        goal_enemies = self.enemy_manager.update()
+        if goal_enemies:
+            manager.base_hp -= len(goal_enemies)
+            # ゴール到達エネミーはリストから除去
+            self.enemy_manager.enemies = [e for e in self.enemy_manager.enemies if not (e.is_goal() and e.is_alive)]
+            if manager.base_hp <= 0:
+                # ゲームオーバー遷移
+                state_manager.change_state(state_manager.gameover_state)
+        return goal_enemies
+
+    def _handle_unit_selection_ui(self, manager: "InGameManager", input_manager: "InputManager") -> StateResult:
+        """
+        ユニット選択UIの操作を処理する。
+        ユニット選択中はカーソル・Zキー操作を無効化。
+        """
+        import pyxel
+
+        if input_manager.is_triggered(pyxel.KEY_UP):
+            manager.unit_ui_cursor = (manager.unit_ui_cursor - 1) % len(manager.unit_list)
+        elif input_manager.is_triggered(pyxel.KEY_DOWN):
+            manager.unit_ui_cursor = (manager.unit_ui_cursor + 1) % len(manager.unit_list)
+        elif input_manager.is_triggered(pyxel.KEY_Z):
+            if manager.selected_cell is not None:
+                x, y = manager.selected_cell
+                unit = manager.unit_list[manager.unit_ui_cursor]
+                # 資金が足りる場合のみ配置し、UIを閉じる
+                if manager.funds >= unit.cost:
+                    placed = manager.player_unit_manager.place_unit(unit, x, y)
+                    if placed:
+                        manager.funds -= unit.cost
+                    manager.is_selecting_unit = False
+                    manager.selected_cell = None
+                # 足りない場合は何もせずUIを閉じない
+        elif input_manager.is_triggered(pyxel.KEY_X):
+            manager.is_selecting_unit = False
+            manager.selected_cell = None
+        return StateResult.NONE
+
+    def _handle_normal_input(self, manager: "InGameManager", input_manager: "InputManager") -> None:
+        """
+        通常時のカーソル移動・Zキーによるユニット配置/強化UI遷移を処理する。
+        """
+        import pyxel
+
+        if input_manager.is_triggered(pyxel.KEY_UP):
+            manager.cursor.move(0, -1)
+        elif input_manager.is_triggered(pyxel.KEY_DOWN):
+            manager.cursor.move(0, 1)
+        elif input_manager.is_triggered(pyxel.KEY_LEFT):
+            manager.cursor.move(-1, 0)
+        elif input_manager.is_triggered(pyxel.KEY_RIGHT):
+            manager.cursor.move(1, 0)
+
+        # Zキーでユニット配置 or 強化UIへ
+        if input_manager.is_triggered(pyxel.KEY_Z):
+            x, y = manager.cursor.get_pos()
+            pum = manager.player_unit_manager
+            if (x, y) in pum.units:
+                # 設置済みユニット上なら強化UI
+                pum.open_upgrade_ui((x, y))
+            elif manager.can_place_unit_at(x, y):
+                manager.is_selecting_unit = True
+                manager.selected_cell = (x, y)
+                manager.unit_ui_cursor = 0
+
+    def _update_camera(self, manager: "InGameManager") -> None:
+        """
+        カメラの追従処理。
+        """
+        manager.camera.move_to_cursor(*manager.cursor.get_pos())
+
+    def draw(self, manager: "InGameManager") -> None:
+        pass
