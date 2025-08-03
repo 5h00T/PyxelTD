@@ -80,12 +80,11 @@ class PlayingState(GameStateProtocol):
                 if pum.upgrade_ui_cursor == 0:
                     # 強化選択
                     x, y = pum.selected_unit_pos
-                    pum.level_up_unit(x, y)
                     # コスト消費
                     unit = pum.units[(x, y)].unit
                     next_cost = unit.get_upgrade_cost(pum.units[(x, y)].level)
-                    if next_cost > 0 and manager.funds >= next_cost:
-                        manager.funds -= next_cost
+                    manager.funds -= next_cost
+                    pum.level_up_unit(x, y)
                 pum.close_upgrade_ui()
         elif input_manager.is_triggered(pyxel.KEY_X):
             pum.close_upgrade_ui()
