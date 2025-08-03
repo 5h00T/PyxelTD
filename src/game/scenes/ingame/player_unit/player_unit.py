@@ -60,6 +60,22 @@ class PlayerUnit:
             pyxel.tri(x, y + tile_size, x + tile_size // 2, y, x + tile_size, y + tile_size, color)
         elif self.shape == "circ":
             pyxel.circ(x + tile_size // 2, y + tile_size // 2, tile_size // 2, color)
+        elif self.shape == "diamond":
+            # ひし形（ダイヤ型）: 4頂点
+            cx = x + tile_size // 2
+            cy = y + tile_size // 2
+            top = (cx, y)
+            right = (x + tile_size, cy)
+            bottom = (cx, y + tile_size)
+            left = (x, cy)
+            # 塗りつぶし（2三角形で分割）
+            pyxel.tri(*top, *right, *bottom, color)
+            pyxel.tri(*top, *bottom, *left, color)
+            # 枠線
+            pyxel.line(*top, *right, 7)
+            pyxel.line(*right, *bottom, 7)
+            pyxel.line(*bottom, *left, 7)
+            pyxel.line(*left, *top, 7)
         else:
             pyxel.rect(x, y, tile_size, tile_size, color)
 
@@ -131,7 +147,7 @@ PLAYER_UNIT_MASTER: List[PlayerUnit] = [
         range=[6, 6, 6, 6, 8],
         attack_interval=200,
         is_aoe=True,
-        shape="rect",
+        shape="diamond",
         level_colors=[3, 11, 12, 10, 8],
     ),
 ]
