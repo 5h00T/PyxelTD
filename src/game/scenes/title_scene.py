@@ -36,5 +36,5 @@ class TitleScene(BaseScene):
         """
         pyxel.cls(0)
         font_renderer = FontRenderer.get_instance()
-        font_renderer.draw_text(60, 50, "PyxelTD", 7, font_name="default")
-        font_renderer.draw_text(40, 70, "Press Z to start", 6, font_name="default")
+        font_renderer.draw_text(65, 50, "PyxelTD", 7, font_name="default")
+        font_renderer.draw_text(45, 70, "Press Z to start", 6, font_name="default")
