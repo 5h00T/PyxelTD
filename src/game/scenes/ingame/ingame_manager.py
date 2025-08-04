@@ -276,10 +276,10 @@ class InGameManager:
         funds = self.funds
         funds_text = f"資金: {funds}"
         font_renderer = FontRenderer.get_instance()
+        width = font_renderer.text_width(funds_text, font_name="default")
         font_renderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
-        font_renderer.draw_text(
-            8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7, font_name="default"
-        )
+        x = ui_x + width + 24
+        font_renderer.draw_text(x, ui_y, f"HP: {self.base_hp}/{self.max_base_hp}", 1, font_name="default")
 
     def draw_cursor(self, camera_x: int, camera_y: int) -> None:
         self.cursor.draw(camera_x, camera_y)
