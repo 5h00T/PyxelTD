@@ -43,10 +43,8 @@ class Camera:
         # Y方向
         if cursor_y < self.y + margin:
             self.y = max(0, cursor_y - margin)
-            # デバッグ出力削除
         elif cursor_y >= self.y + self.view_height - margin:
-            self.y = min(self.map_height - self.view_height, cursor_y - self.view_height + margin + 1)
-            # デバッグ出力削除
+            self.y = max(min(self.map_height - self.view_height, cursor_y - self.view_height + margin + 1), 0)
 
     def clamp_position(self, x: int, y: int) -> Tuple[int, int]:
         """
