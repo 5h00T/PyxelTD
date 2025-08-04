@@ -19,7 +19,7 @@ class FontRenderer:
 
     def __init__(self) -> None:
         if not hasattr(self, "_initialized"):
-            self._font_instances: dict[str, Any] = {}
+            self._font_instances: dict[str, pyxel.Font] = {}
             self._name_to_path: dict[str, str] = {}
             self._initialized = True
 
@@ -35,7 +35,7 @@ class FontRenderer:
         if font_path not in self._font_instances:
             self._font_instances[font_path] = pyxel.Font(font_path)
 
-    def get_font(self, name: str):
+    def _get_font(self, name: str) -> pyxel.Font:
         font_path = self._name_to_path.get(name)
         if not font_path:
             raise ValueError(f"Font name '{name}' is not registered.")
@@ -45,12 +45,12 @@ class FontRenderer:
         """
         指定フォント名でテキストを描画。
         """
-        font = self.get_font(font_name)
+        font = self._get_font(font_name)
         pyxel.text(x, y, text, color, font)
 
     def text_width(self, text: str, font_name: str = "default") -> int:
         """
         指定フォント名でテキスト幅を取得。
         """
-        font = self.get_font(font_name)
+        font = self._get_font(font_name)
         return font.text_width(text)

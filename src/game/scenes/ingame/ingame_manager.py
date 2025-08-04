@@ -276,21 +276,20 @@ class InGameManager:
         funds = self.funds
         funds_text = f"資金: {funds}"
         font_renderer = FontRenderer.get_instance()
+        width = font_renderer.text_width(funds_text, font_name="default")
         font_renderer.draw_text(ui_x + 8, ui_y + 0, funds_text, 1, font_name="default")
-        font_renderer.draw_text(
-            8, 4, f"BASE HP: {self.base_hp}/{self.max_base_hp}", 6 if self.base_hp <= 3 else 7, font_name="default"
-        )
+        x = ui_x + width + 24
+        font_renderer.draw_text(x, ui_y, f"HP: {self.base_hp}/{self.max_base_hp}", 1, font_name="default")
 
     def draw_cursor(self, camera_x: int, camera_y: int) -> None:
         self.cursor.draw(camera_x, camera_y)
 
     def can_place_unit_at(self, x: int, y: int) -> bool:
         """
-        Returns True if a player unit can be placed at (x, y).
-        Not placeable if:
-        - Already occupied
-        - Out of map bounds
-        - Not a placeable tile (tile != 1)
+        指定位置にユニットを配置できるかチェック。
+        Args:
+            x (int): タイルX座標
+            y (int): タイルY座標
         """
         if (x, y) in self.player_unit_manager.units:
             return False

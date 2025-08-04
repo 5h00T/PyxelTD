@@ -7,8 +7,6 @@ if TYPE_CHECKING:
 """
 InGameScene - インゲーム画面のシーン
 """
-import pyxel
-
 from .base_scene import BaseScene
 from .ingame.in_game_states.in_game_state import GameStateProtocol
 from .ingame.ingame_manager import InGameManager
@@ -55,24 +53,3 @@ class InGameScene(BaseScene):
         状態管理はmanagerに委譲。
         """
         self.manager.draw(game)
-
-    def is_cleared(self) -> bool:
-        """
-        ゲームクリア判定。
-        クリア条件を満たしたらTrue。
-        """
-        return False  # TODO: 実装
-
-    def is_gameover(self) -> bool:
-        """
-        ゲームオーバー判定。
-        ゲームオーバー条件を満たしたらTrue。
-        """
-        return False  # TODO: 実装
-
-    def draw_text_center(self, text: str, y: int = 60, color: int = 7) -> None:
-        """
-        画面中央にテキストを描画するユーティリティ。
-        """
-        x = (pyxel.width - len(text) * 4) // 2
-        pyxel.text(x, y, text, color)

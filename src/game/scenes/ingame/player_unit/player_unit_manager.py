@@ -113,17 +113,17 @@ class PlayerUnitManager:
                     targets.append(enemy)
             if not targets:
                 continue
+            # 単体攻撃: 最初の敵に弾
+            grant_buff = None
+            if inst.unit.grants_slow:
+                grant_buff = SpeedDownBuff(duration=300, speed_multiplier=0.5)
             if inst.unit.is_aoe:
-                # 範囲攻撃: 射程内全てに弾
-                for t in targets:
-                    self.bullets.append(
-                        Bullet(cx, cy, t, attack_power, aoe_radius=1.5, flying_effect=inst.unit.flying_effect)
-                    )
+                # 範囲攻撃
+                self.bullets.append(
+                    Bullet(cx, cy, targets[0], attack_power, aoe_radius=2.5, flying_effect=inst.unit.flying_effect)
+                )
             else:
-                # 単体攻撃: 最初の敵に弾
-                grant_buff = None
-                if inst.unit.grants_slow:
-                    grant_buff = SpeedDownBuff(duration=300, speed_multiplier=0.5)
+                # 単体攻撃
                 self.bullets.append(
                     Bullet(
                         cx,
@@ -134,6 +134,7 @@ class PlayerUnitManager:
                         flying_effect=inst.unit.flying_effect,
                     )
                 )
+
             inst.attack_cooldown = inst.unit.attack_interval  # ユニットごとの発射間隔
 
     def draw(self, camera_x: int, camera_y: int) -> None:

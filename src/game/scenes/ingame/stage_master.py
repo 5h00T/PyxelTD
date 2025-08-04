@@ -12,9 +12,9 @@ class EnemySpawnData:
     """
 
     def __init__(self, enemy_type: str, spawn_point: tuple[int, int], coefficient: float):
-        self.enemy_type = enemy_type  # "BasicEnemy"など
+        self.enemy_type = enemy_type
         self.spawn_point = spawn_point
-        self.coefficient = coefficient  # ステージ難易度調整用係数（デフォルトは1.0）
+        self.coefficient = coefficient
 
 
 class FlyingEnemySpawnData(EnemySpawnData):

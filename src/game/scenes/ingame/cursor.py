@@ -26,7 +26,6 @@ class Cursor:
         # マップ全体の範囲で制限
         self.x = max(0, min(new_x, self.map_width - 1))
         self.y = max(0, min(new_y, self.map_height - 1))
-        # デバッグ出力削除
 
     def get_pos(self) -> Tuple[int, int]:
         """

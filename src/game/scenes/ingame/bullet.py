@@ -29,9 +29,9 @@ class Bullet:
         self.damage = damage
         self.grant_buff = grant_buff
         self.speed = speed
-        self.aoe_radius = aoe_radius  # 範囲攻撃半径（0なら単体）
+        self.aoe_radius = aoe_radius  # 着弾時の範囲攻撃半径（0なら単体）
         self.is_active = True
-        self.hit_pos = None  # type: tuple[float, float] | None
+        self.hit_pos: tuple[float, float] | None = None
         self.flying_effect = flying_effect
 
     def update(self, enemies: list[Enemy]) -> None:
