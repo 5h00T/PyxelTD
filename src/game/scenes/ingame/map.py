@@ -15,6 +15,20 @@ TILE_GOAL = 3  # ゴール地点（緑）
 
 
 class Map:
+    """
+    マップタイル管理クラス。
+    2次元リストでマップデータを保持。
+    """
+
+    def __init__(self, map_data: List[List[int]]) -> None:
+        """
+        マップ初期化。マスターデータからマップ配列を受け取る。
+        Args:
+            map_data (List[List[int]]): 2次元リストのマップデータ
+        """
+        self.data: List[List[int]] = map_data
+        self.height = len(self.data)
+        self.width = len(self.data[0]) if self.data else 0
 
     def get_tile(self, x: int, y: int) -> int:
         """
@@ -23,80 +37,6 @@ class Map:
         if 0 <= x < self.width and 0 <= y < self.height:
             return self.data[y][x]
         return 2
-
-    def get_all_paths_from_entrances_to_goal(self) -> list[list[tuple[int, int]]]:
-        """
-        マップ端のTILE_PATH=0を入口とし、各入口からゴールまでの経路を抽出。
-        Returns:
-            list[list[tuple[int, int]]]: 各入口からゴールまでの経路リスト
-        """
-        height = self.height
-        width = self.width
-        # 入口（画面外に隣接するTILE_PATH）を左端・上端・右端・下端から探す
-        entrances = []
-        for y in range(height):
-            if self.data[y][0] == TILE_PATH:
-                entrances.append((0, y))
-            if self.data[y][width - 1] == TILE_PATH:
-                entrances.append((width - 1, y))
-        for x in range(width):
-            if self.data[0][x] == TILE_PATH:
-                entrances.append((x, 0))
-            if self.data[height - 1][x] == TILE_PATH:
-                entrances.append((x, height - 1))
-        # ゴール（TILE_GOAL=3）を探す
-        goal = None
-        for y in range(height):
-            for x in range(width):
-                if self.data[y][x] == TILE_GOAL:
-                    goal = (x, y)
-                    break
-            if goal:
-                break
-        if not goal:
-            return []
-        # 各入口からゴールまでの経路を幅優先探索で抽出
-        from collections import deque
-        from typing import Optional, Tuple
-
-        paths = []
-        for start in entrances:
-            visited = [[False] * width for _ in range(height)]
-            prev: list[list[Optional[Tuple[int, int]]]] = [[None for _ in range(width)] for _ in range(height)]
-            queue: deque[Tuple[int, int]] = deque()
-            sx, sy = start
-            queue.append((sx, sy))
-            visited[sy][sx] = True
-            found = False
-            while queue:
-                x, y = queue.popleft()
-                if (x, y) == goal:
-                    found = True
-                    break
-                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                    nx, ny = x + dx, y + dy
-                    if 0 <= nx < width and 0 <= ny < height:
-                        if not visited[ny][nx] and (self.data[ny][nx] == TILE_PATH or self.data[ny][nx] == TILE_GOAL):
-                            visited[ny][nx] = True
-                            prev[ny][nx] = (x, y)
-                            queue.append((nx, ny))
-            # ゴールまでの経路を復元
-            if found:
-                path = []
-                x, y = goal
-                while (x, y) != start:
-                    path.append((x, y))
-                    if prev[y][x] is None:
-                        break
-                    # 安全にアンパック
-                    next_pos = prev[y][x]
-                    if next_pos is None:
-                        break
-                    x, y = next_pos
-                path.append(start)
-                path.reverse()
-                paths.append(path)
-        return paths
 
     def get_path(self, start: tuple[int, int], goal: tuple[int, int]) -> list[tuple[int, int]]:
         """
@@ -168,21 +108,6 @@ class Map:
                 if self.data[y][x] == TILE_GOAL:
                     return (x, y)
         return (-1, -1)
-
-    """
-    マップタイル管理クラス。
-    2次元リストでマップデータを保持。
-    """
-
-    def __init__(self, map_data: List[List[int]]) -> None:
-        """
-        マップ初期化。マスターデータからマップ配列を受け取る。
-        Args:
-            map_data (List[List[int]]): 2次元リストのマップデータ
-        """
-        self.data: List[List[int]] = map_data
-        self.height = len(self.data)
-        self.width = len(self.data[0]) if self.data else 0
 
     def draw(
         self, camera_x: int = 0, camera_y: int = 0, view_width: Optional[int] = None, view_height: Optional[int] = None

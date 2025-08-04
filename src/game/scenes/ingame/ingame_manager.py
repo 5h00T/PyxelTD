@@ -286,11 +286,10 @@ class InGameManager:
 
     def can_place_unit_at(self, x: int, y: int) -> bool:
         """
-        Returns True if a player unit can be placed at (x, y).
-        Not placeable if:
-        - Already occupied
-        - Out of map bounds
-        - Not a placeable tile (tile != 1)
+        指定位置にユニットを配置できるかチェック。
+        Args:
+            x (int): タイルX座標
+            y (int): タイルY座標
         """
         if (x, y) in self.player_unit_manager.units:
             return False
