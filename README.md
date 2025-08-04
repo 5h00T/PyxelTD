@@ -6,6 +6,12 @@
 
 ![pyxel-20250805-021812](https://github.com/user-attachments/assets/249af86b-1383-4232-a220-53466a495b7a)
 
+## 実行方法
+
+以下にアクセス
+```
+https://kitao.github.io/pyxel/wasm/launcher/?play=5h00t.PyxelTD.app.pyxeltd
+```
 
 ## ゲーム中の操作方法
 
